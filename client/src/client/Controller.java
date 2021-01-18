@@ -16,7 +16,7 @@ import java.io.IOException;
 
 public class Controller {
     @FXML
-    public TextField login;
+    public TextField nick;
     public TextField address;
     public TextField port;
     public Label loginErrorEmpty;
@@ -29,33 +29,18 @@ public class Controller {
         loginErrorEmpty.setVisible(false);
         loginErrorLong.setVisible(false);
         connectingLabel.setVisible(false);
-        if (login.getText() == null || login.getText().trim().isEmpty()) {
+        if (nick.getText() == null || nick.getText().trim().isEmpty()) {
             loginErrorEmpty.setVisible(true);
         }
-        if (login.getText().trim().length() <= 20 && login.getText().trim().length() > 0) {
+        if (nick.getText().trim().length() <= 20 && nick.getText().trim().length() > 0) {
             connectingLabel.setVisible(true);
+            System.out.println("Welcome " + nick.getText());
             client.Main.login();
         }
-        if (login.getText().trim().length() > 20){
+        if (nick.getText().trim().length() > 20){
             loginErrorLong.setVisible(true);
         }
     }
-
-    /*
-    @FXML
-    public void logIn() {
-
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("main.fxml"));
-            SplitPane yourNewView = fxmlLoader.load();
-            sceneContainer.getChildren().setAll(yourNewView);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-     */
 
     @FXML
     public void enter(KeyEvent e) throws IOException {
