@@ -11,9 +11,15 @@
 #include <string.h>
 #include <time.h>
 #include <pthread.h>
+#include <stdbool.h>
+#include "room.c"
+#include "user.c"
+#include "useruserchat.c"
 
 #define SERVER_PORT 1234
 #define QUEUE_SIZE 100
+#define MAX_ROOMS 100
+#define MAX_USERS 200
 
 //uchwyt na mutex
 pthread_mutex_t read_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -28,6 +34,11 @@ struct thread_data_t
     int deskryptor;
 };
 
+Room rooms[MAX_ROOMS];
+User users[MAX_USERS];
+Useruserchat useruserchats[MAX_USERS*(MAX_USERS-1)];
+
+
 //funkcja opisującą zachowanie wątku - musi przyjmować argument typu (void *) i zwracać (void *) check
 void *ThreadBehavior(void *t_data)
 {
@@ -38,8 +49,166 @@ void *ThreadBehavior(void *t_data)
     while(1){
         char buffor[50];
         int vread = read(th_data -> deskryptor, buffor,50);
-        if (vread > 0){
+        if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
+        /* 0 - log
+        1 - logout
+        2 - join room
+        3 - create new room
+        4 - message room
+        5 - message face2face
+        */
+            char str[80] = "This is \n www.tutorialspoint.com \n website";
+            const char s[2] = "\n";
+            char *token;
+            char *token2;
+            char *token3;
+
+            printf("%s\n",str);
+            
+            /* get the first token */
+            token = strtok(str, s);//get token with number
+            
+            /* walk through other tokens */
+            /*while( token != NULL ) {
+                printf( " %s\n", token );
+                
+                token = strtok(NULL, s);
+            }*/
             buffor[vread] = '\0';
+            if(*token == '0'){  //0 - log
+                bool find_user = false;
+                token = strtok(NULL, s); //username
+                for(int i=0;i<MAX_USERS;i++){
+                    if(!strcmp(users[i].user,token)){
+                        find_user = true;
+                        if(users[i].logged == false) users[i].logged = true;
+                        else{
+                            //return info that user is already logged
+                        }
+                    }
+                    else if(users[i]==NULL){
+                        find_user = true;
+                        //set new user and add chat with everyone else
+                    }
+                }
+                //not place avalaible for new user
+                if(!find_user){
+                    
+                }
+            }
+            else if(*token == '1'){//1 - logout
+                token = strtok(NULL, s); //username
+                bool find_user = false;
+                for(int i=0;i<MAX_USERS;i++){
+                    if(!strcmp(users[i].user,token)){
+                        find_user = true;
+                        if(users[i].logged == true) users[i].logged = false;
+                        else{
+                            //return exception - user is not logged
+                        }
+                    }
+                }
+                if(!find_user){
+                    //there is no such user
+                }
+            }
+            else if(*token == '2'){//2 - join room
+                token = strtok(NULL, s); //room name
+                bool find_room = false;
+                bool find_user = false;
+                for(int i = 0;i<MAX_ROOMS;i++)
+                {
+                    if(!strcmp(token,rooms[i].name)){
+                        find_room = true;
+                        token2 = strtok(NULL, s); //username
+                        for(int j = 0;j<MAX_USERS;j++){
+                            if(!strcmp(users[i].user,token2)){
+                                find_user = true;
+                                //add new user to room
+                            }
+                        }
+                    }
+                }
+                if(!find_room){
+                    //there is no such room name
+                }
+                else if(!find_user){
+                    //room is ok, no such username
+                }
+                //if the room is not found then the user is not recognized
+            }
+            else if(*token == '3'){//3 - create new room
+                token = strtok(NULL, s); //room name
+                bool find_free_room = false;
+                for(int i = 0; i<MAX_ROOMS;i++){
+                    if(rooms[i]==NULL){
+                        Room room;
+                        room.name = token;
+                        rooms[i] = room;
+                        find_free_room = true;
+                    }
+                }
+                if(!find_free_room){
+                    //there is no free room, whole server is occupied
+                }
+            }
+            else if(*token == '4'){//4 - message room
+                bool find_room = false;
+                bool find_user = false;
+                token = strtok(NULL, s); //message content
+                token2 = strtok(NULL, s); //room
+                token3 = strtok(NULL, s); //username
+                for(int i=0;i<MAX_ROOMS;i++){
+                    if(!strcmp(token2,rooms[i].name)){
+                        find_room = true;
+                        for(int j = 0;j<MAX_USERS;j++){
+                            if(!strcmp(users[i].user,token3)){
+                                find_user = true;
+                                //add new message to room
+                            }
+                        }
+                    }
+                }
+                if(!find_room){
+                    //there is no such room name
+                }
+                else if(!find_user){
+                    //room is ok, no such username
+                }
+                //if the room is not found then the user is not recognized
+            }
+            else if(*token == '5'){//5 - message face2face
+                token = strtok(NULL, s); //message content
+                token2 = strtok(NULL, s); //username from
+                token3 = strtok(NULL, s); //username to
+                bool find_user_from = false;
+                bool find_user_to = false;
+                bool find_user_user_chat = false;
+                for(int i=0;i<MAX_USERS;i++){
+                    if(!strcmp(token2,rooms[i].name)){
+                        find_user_from = true;
+                        for(int j = 0;j<MAX_USERS;j++){
+                            if(!strcmp(users[j].user,token3)){
+                                find_user_to = true;
+                                //send new message between users
+                                for(int k=0;k<MAX_USERS*(MAX_USERS-1);k++){
+                                    if((users[i]==useruserchats[k].user1 && users[j]==useruserchats[k].user2)||
+                                    (users[j]==useruserchats[k].user1 && users[i]==useruserchats[k].user2)){
+                                        //send message
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                if(!find_user_from){
+                    //there is no such username from
+                }
+                else if(!find_user_to){
+                    //username from is ok, no such username to
+                }
+                //if the room is not found then the user is not recognized
+            }
             //printf("%s",buffor);
             printf("Mutex start: %d\n",th_data -> deskryptor);
             pthread_mutex_lock(&read_mutex);
