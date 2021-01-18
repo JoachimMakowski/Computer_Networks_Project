@@ -9,6 +9,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+/*      0 - login
+        1 - logout
+        2 - join room
+        3 - create new room
+        4 - message room
+        5 - message face2face
+*/
 
 public class Main extends Application {
 
@@ -37,20 +44,44 @@ public class Main extends Application {
         Parent menu = FXMLLoader.load(Main.class.getResource("menu.fxml"));
         Stage menuStage = new Stage();
         //menuStage = Main.parentWindow;
+        parentWindow.close();
+        parentWindow = menuStage;
         menuStage.setTitle("Internet Relay Chat");
         //menuStage.setMaximized(true);
         menuStage.setResizable(false);
-        menuStage.setScene(new Scene(menu, 800, 600));
+        menuStage.setScene(new Scene(menu, 900, 700));
         menuStage.show();
+
+        menuStage.setOnCloseRequest(e ->
+        {
+            e.consume();
+            closeProgram(menuStage);
+        });
+    }
+
+    public static void logout() throws IOException {
+        Parent menu = FXMLLoader.load(Main.class.getResource("login.fxml"));
+        Stage logoutStage = new Stage();
         parentWindow.close();
+        parentWindow = logoutStage;
+        logoutStage.setTitle("Logout from IRC app");
+        logoutStage.setResizable(false);
+        logoutStage.setScene(new Scene(menu, 400,400));
+        logoutStage.show();
+
+        logoutStage.setOnCloseRequest(e ->
+        {
+            e.consume();
+            closeProgram(logoutStage);
+        });
     }
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    private void closeProgram(Stage primaryStage) {
-        Boolean answer = ConfirmBox.display("EXIT", "Sure you want to exit?", "YES", "NEVER");
+    private static void closeProgram(Stage primaryStage) {
+        Boolean answer = ConfirmBox.display("EXIT", "Sure you want to exit?", "YES", "NO");
         if (answer)
             primaryStage.close();
     }
