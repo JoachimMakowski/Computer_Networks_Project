@@ -12,8 +12,8 @@
                 <ListView fx:id="roomList" layoutY="29.0" prefHeight="828.0" prefWidth="169.0" AnchorPane.bottomAnchor="-323.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
                 <Label layoutX="7.0" prefHeight="30.0" prefWidth="163.0" text="Rooms" />
             </AnchorPane>
-            <Button mnemonicParsing="false" text="Create new room" />
-            <Button mnemonicParsing="false" text="Join room" />
+            <Button fx:id="createRoomButton" mnemonicParsing="false" onAction="#createRoom" text="Create new room" />
+            <Button fx:id="joinRoomButton" mnemonicParsing="false" onAction="#joinRoom" text="Join room" />
         </SplitPane>
     </AnchorPane>
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="416.0">

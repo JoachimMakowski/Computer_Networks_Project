@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.RoomController">
+   <children>
+      <TextField fx:id="newRoomName" layoutX="57.0" layoutY="119.0" prefHeight="40.0" prefWidth="185.0" promptText="Room name" />
+      <Button fx:id="createRoomCreateButton" layoutX="33.0" layoutY="238.0" mnemonicParsing="false" onAction="#checkNewRoom" prefHeight="40.0" prefWidth="75.0" text="Create" />
+      <Button fx:id="createRoomCancelButton" layoutX="188.0" layoutY="238.0" mnemonicParsing="false" onAction="#closeButtonAction" prefHeight="40.0" prefWidth="75.0" text="Cancel" />
+      <Label layoutX="15.0" layoutY="49.0" prefHeight="30.0" prefWidth="270.0" text="Create a room to chat in groups">
+         <font>
+            <Font size="19.0" />
+         </font>
+      </Label>
+      <Label fx:id="newRoomNameError" layoutX="74.0" layoutY="190.0" prefHeight="18.0" prefWidth="152.0" text="Room name can't be empty!" textFill="RED" visible="false" />
+      <Label fx:id="newRoomTakenError" layoutX="79.0" layoutY="190.0" prefHeight="18.0" prefWidth="142.0" text="Room name already taken!" textFill="#fd0000" visible="false" />
+      <Label fx:id="newRoomLongerError" layoutX="18.0" layoutY="190.0" prefHeight="18.0" prefWidth="264.0" text="Room name cannot be longer than 20 characters!" textFill="RED" visible="false" />
+   </children>
+</AnchorPane>
