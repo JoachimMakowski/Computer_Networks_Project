@@ -17,16 +17,19 @@
 #include "useruserchat.c"
 
 #define SERVER_PORT 1234
-#define QUEUE_SIZE 100
-#define MAX_ROOMS 100
-#define MAX_USERS 200
+#define QUEUE_SIZE 10//how many users in the same time
+#define MAX_ROOMS 10//how many rooms
+#define MAX_USERS 20//max value of users
 
 //uchwyt na mutex
 pthread_mutex_t read_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t exit_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t start_mutex = PTHREAD_MUTEX_INITIALIZER;
 int desc_table[QUEUE_SIZE];
-int clients = 0;
+int clients = 0; //how many clients is actually logged
+int number_of_users = 0;
+int number_of_rooms = 0;
+int number_of_chats = 0;
 
 //struktura zawierająca dane, które zostaną przekazane do wątku
 struct thread_data_t
@@ -47,8 +50,8 @@ void *ThreadBehavior(void *t_data)
     struct thread_data_t *th_data = (struct thread_data_t*)t_data;
     
     while(1){
-        char buffor[50];
-        int vread = read(th_data -> deskryptor, buffor,50);
+        char buffor[300];
+        int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
         1 - logout
@@ -66,7 +69,7 @@ void *ThreadBehavior(void *t_data)
             printf("%s\n",str);
             
             /* get the first token */
-            token = strtok(str, s);//get token with number
+            
             
             /* walk through other tokens */
             /*while( token != NULL ) {
@@ -75,20 +78,36 @@ void *ThreadBehavior(void *t_data)
                 token = strtok(NULL, s);
             }*/
             buffor[vread] = '\0';
+
+            token = strtok(buffor, s);//get token
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token)){
                         find_user = true;
-                        if(users[i].logged == false) users[i].logged = true;
+                        if(users[i].logged == false) {
+                            users[i].logged = true;
+                            break;
+                        }
                         else{
                             //return info that user is already logged
+                            break;
                         }
                     }
-                    else if(users[i]==NULL){
+                    else if(i>=number_of_users){
                         find_user = true;
                         //set new user and add chat with everyone else
+                        strcpy(users[i].user,token);
+                        users[i].logged=true;
+                        for (int j = 0;j<number_of_users;j++){
+                            useruserchats[number_of_chats].user1 = users[j];
+                            useruserchats[number_of_chats].user1 = users[i];
+                            useruserchats[number_of_chats].number_of_messages=0;
+                            number_of_chats++;
+                        }
+                        number_of_users++;
+                        break;
                     }
                 }
                 //not place avalaible for new user
@@ -102,9 +121,14 @@ void *ThreadBehavior(void *t_data)
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token)){
                         find_user = true;
-                        if(users[i].logged == true) users[i].logged = false;
+                        if(users[i].logged == true){
+                            users[i].logged = false;
+                            break;
+                        }
                         else{
                             //return exception - user is not logged
+
+                            break;
                         }
                     }
                 }
@@ -114,19 +138,22 @@ void *ThreadBehavior(void *t_data)
             }
             else if(*token == '2'){//2 - join room
                 token = strtok(NULL, s); //room name
+                token2 = strtok(NULL, s); //username
                 bool find_room = false;
                 bool find_user = false;
                 for(int i = 0;i<MAX_ROOMS;i++)
                 {
                     if(!strcmp(token,rooms[i].name)){
                         find_room = true;
-                        token2 = strtok(NULL, s); //username
                         for(int j = 0;j<MAX_USERS;j++){
-                            if(!strcmp(users[i].user,token2)){
+                            if(!strcmp(users[j].user,token2)){
                                 find_user = true;
                                 //add new user to room
+                                add_user(rooms[i],users[j]);
+                                break;
                             }
                         }
+                        break;
                     }
                 }
                 if(!find_room){
@@ -141,11 +168,16 @@ void *ThreadBehavior(void *t_data)
                 token = strtok(NULL, s); //room name
                 bool find_free_room = false;
                 for(int i = 0; i<MAX_ROOMS;i++){
-                    if(rooms[i]==NULL){
-                        Room room;
-                        room.name = token;
-                        rooms[i] = room;
+                    if(!strcmp(token,rooms[i].name)){
+                        //room already exists
+                    }
+                    else if(i>=number_of_rooms){
+                        strcpy(rooms[i].name,token);
+                        rooms[i].number_of_users = 0;
+                        rooms[i].number_of_messages = 0;
                         find_free_room = true;
+                        number_of_rooms++;
+                        break;
                     }
                 }
                 if(!find_free_room){
@@ -162,11 +194,17 @@ void *ThreadBehavior(void *t_data)
                     if(!strcmp(token2,rooms[i].name)){
                         find_room = true;
                         for(int j = 0;j<MAX_USERS;j++){
-                            if(!strcmp(users[i].user,token3)){
+                            if(!strcmp(users[j].user,token3)){
                                 find_user = true;
                                 //add new message to room
+                                Message message;
+                                message.user=users[j];
+                                strcpy(message.content,token);
+                                add_message_to_room(rooms[i],message);
+                                break;
                             }
                         }
+                        break;
                     }
                 }
                 if(!find_room){
@@ -185,16 +223,21 @@ void *ThreadBehavior(void *t_data)
                 bool find_user_to = false;
                 bool find_user_user_chat = false;
                 for(int i=0;i<MAX_USERS;i++){
-                    if(!strcmp(token2,rooms[i].name)){
+                    if(!strcmp(users[i].user,token2)){
                         find_user_from = true;
                         for(int j = 0;j<MAX_USERS;j++){
                             if(!strcmp(users[j].user,token3)){
                                 find_user_to = true;
                                 //send new message between users
                                 for(int k=0;k<MAX_USERS*(MAX_USERS-1);k++){
-                                    if((users[i]==useruserchats[k].user1 && users[j]==useruserchats[k].user2)||
-                                    (users[j]==useruserchats[k].user1 && users[i]==useruserchats[k].user2)){
+                                    if(((!strcmp(users[i].user,useruserchats[k].user1.user)) && (!strcmp(users[j].user,useruserchats[k].user2.user)))||
+                                    ((!strcmp(users[j].user,useruserchats[k].user1.user)) && (!strcmp(users[i].user,useruserchats[k].user2.user)))){
                                         //send message
+                                        Message message;
+                                        strcpy(message.content,token);
+                                        message.user=users[i];
+                                        add_message_to_chat(useruserchats[k],message);
+                                        //finish sending to user_to(now it is only saved on server)
                                     }
                                 }
                             }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 typedef struct {//ewentualnie dodać kolor lub czy_zalogowany
     char user[25];
@@ -34,24 +35,30 @@ int main () {
    const char s[2] = "\n";
    char *token;
 
-   printf("%s\n",str);
+   //printf("%s\n",str);
    
    /* get the first token */
    token = strtok(str, s);
+   printf( "%c\n", *token );
+   char asdasd[10] = "asda\nsdasd";
+   token = strtok(asdasd, s);
+   printf( "%s\n", token );
    
-   /* walk through other tokens */
+   token = strtok(NULL, s);
+   printf( "%s\n", token );
+   /* walk through other tokens 
    while( token != NULL ) {
       printf( "%c\n", *token );
     
       token = strtok(NULL, s);
-   }
-
+   }*/
+   char asd[20] = "asd";
+   printf("qwerty");
    User nums[13];
-   memset(nums,'\0',sizeof(nums));
-   strcpy(nums[2].user, "asd");
-   nums[2].logged = false;
+   strcpy(nums[2].user, asd);
+   //nums[2]->logged = &f_false;
    for(i=0;i<13;i++) {
-      if(nums[i].user=='\0') {
+      if(nums[i].user==NULL) {
          printf("null char found! in position: %d\n",i);
       }
       else {
