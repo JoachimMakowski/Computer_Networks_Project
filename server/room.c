@@ -4,26 +4,27 @@
 #include"user.c"
 #include"message.c"
 
-#define MAX_MESSAGES 1000
-#define MAX_USERS_IN_ROOM 5000
+#define MAX_MESSAGES 100
+#define MAX_USERS_IN_ROOM 50
 
 typedef struct{
     char name[20];
-    User users[500];
+    User users[MAX_USERS_IN_ROOM];
     Message messages[MAX_MESSAGES];
-    int number_of_messages = 0;
+    int number_of_messages;//after creating room set number_of_messages = 0
+    int number_of_users;
 }Room;
 
-void add_message(Room room, Message message){//delete old messages(older then 1000 messages)
+void add_message_to_room(Room room, Message message){//delete old messages(older then 1000 messages)
     Message *p;
     p=room.messages;
     if(room.number_of_messages>=MAX_MESSAGES){
         for (int i = 0; i < MAX_MESSAGES-1; i++ ) {
-            *(room.p+i) = *(room.p+i+1);
+            *(p+i) = *(p+i+1);
         }
-        *(room.p+MAX_MESSAGES-1) = message;
+        *(p+MAX_MESSAGES-1) = message;
     }else{
-        Message[i] = message;
+        room.messages[room.number_of_messages] = message;
         room.number_of_messages++;
     }
 }
@@ -37,9 +38,14 @@ void add_message(Room room, Message message){//delete old messages(older then 10
 void add_user(Room room, User user){
     bool find_place = false;
     for(int i=0;i<MAX_USERS_IN_ROOM;i++){
-        if(room.users[i]==NULL){
+        if(!strcmp(user.user,room.users[i].user)){
+            //user that is actually in room is trying to join
+        }
+        if(i>=room.number_of_users){
             find_place = true;
             room.users[i]=user;
+            room.number_of_users++;
+            break;
         }
     }
     if(!find_place){

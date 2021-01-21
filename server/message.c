@@ -4,5 +4,4 @@
 typedef struct{
     User user;
     char content[200];
-    char room_name[20];
 }Message;
