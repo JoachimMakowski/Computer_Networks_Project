@@ -8,8 +8,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.geometry.*;
 
-import java.awt.*;
-
 public class ConfirmBox {
 
     static boolean answer;
@@ -39,10 +37,7 @@ public class ConfirmBox {
         });
 
         VBox layout = new VBox(10);
-        if(title.equals("THE GAME IS OVER")){
-            layout.getChildren().addAll(label,noButton);
-        }
-        else layout.getChildren().addAll(label,yesButton,noButton);
+        layout.getChildren().addAll(label,yesButton,noButton);
         layout.setAlignment(Pos.CENTER);
         Scene scene = new Scene(layout);
         window.setScene(scene);

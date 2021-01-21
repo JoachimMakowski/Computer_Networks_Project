@@ -17,12 +17,18 @@ import java.io.IOException;
 public class Controller {
     @FXML
     public TextField nick;
-    public TextField address;
-    public TextField port;
-    public Label loginErrorEmpty;
-    public Label loginErrorLong;
-    public Label serverErrorConnection;
-    public Label connectingLabel;
+    @FXML
+    private TextField address;
+    @FXML
+    private TextField port;
+    @FXML
+    private Label loginErrorEmpty;
+    @FXML
+    private Label loginErrorLong;
+    @FXML
+    private Label serverErrorConnection;
+    @FXML
+    private Label connectingLabel;
 
     @FXML
     public void check() throws IOException {
@@ -32,12 +38,13 @@ public class Controller {
         if (nick.getText() == null || nick.getText().trim().isEmpty()) {
             loginErrorEmpty.setVisible(true);
         }
-        if (nick.getText().trim().length() <= 20 && nick.getText().trim().length() > 0) {
+        if (nick.getText().trim().length() <= 25 && nick.getText().trim().length() > 0) {
             connectingLabel.setVisible(true);
             System.out.println("Welcome " + nick.getText());
+            User user = new User(nick.getText());
             client.Main.login();
         }
-        if (nick.getText().trim().length() > 20){
+        if (nick.getText().trim().length() > 25){
             loginErrorLong.setVisible(true);
         }
     }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.RoomController">
+   <children>
+      <Label layoutX="38.0" layoutY="48.0" prefHeight="30.0" prefWidth="224.0" text="Enter room name to join">
+         <font>
+            <Font size="20.0" />
+         </font></Label>
+      <TextField fx:id="roomNameText" layoutX="57.0" layoutY="110.0" prefHeight="40.0" prefWidth="185.0" promptText="Room name" />
+      <Button fx:id="joinRoomJoinButton" layoutX="38.0" layoutY="226.0" mnemonicParsing="false" onAction="#checkRoomToJoin" prefHeight="40.0" prefWidth="75.0" text="Join" />
+      <Button fx:id="joinRoomCancelButton" layoutX="186.0" layoutY="226.0" mnemonicParsing="false" onAction="#closeButtonAction" prefHeight="40.0" prefWidth="75.0" text="Cancel" />
+      <Label fx:id="noRoomNameError" layoutX="62.0" layoutY="179.0" text="There is no room with that name!" textFill="RED" visible="false" />
+      <Label fx:id="emptyRoomNameError" layoutX="74.0" layoutY="178.0" prefHeight="18.0" prefWidth="151.0" text="Room name can't be empty!" textFill="RED" visible="false" />
+   </children>
+</AnchorPane>
