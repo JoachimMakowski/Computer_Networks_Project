@@ -57,6 +57,7 @@ void *ThreadBehavior(void *t_data)
     
     while(1){
         char buffor[300];
+        char return_value[20];
         int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
@@ -127,6 +128,9 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].number_of_messages=0;
                             useruserchats[number_of_chats].is_active_user1 = false;
                             useruserchats[number_of_chats].is_active_user2 = false;
+                            strcpy(return_value,"00");
+                            printf("IM SENDING!!!\n");
+                            write(th_data->deskryptor,return_value,sizeof(return_value));
                             number_of_chats++;
                         }
                         number_of_users++;
