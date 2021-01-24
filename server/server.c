@@ -79,15 +79,12 @@ void *ThreadBehavior(void *t_data)
 
         potrzebuję jeszcze leave room
         */
-            char str[80] = "This is \n www.tutorialspoint.com \n website";
             const char s[2] = "\n";
             char *token;
             char *token2;
             char *token3;
             char *token4;
             char *token5;
-
-            printf("%s\n",str);
             
             /* get the first token */
             
@@ -101,9 +98,11 @@ void *ThreadBehavior(void *t_data)
             buffor[vread] = '\0';
 
             token = strtok(buffor, s);//get token
+            printf("%s\n",token);
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
+                printf("%s\n",token);
                 pthread_mutex_lock(&add_user_mutex);
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token)){
