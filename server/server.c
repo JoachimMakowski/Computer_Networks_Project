@@ -98,7 +98,7 @@ void *ThreadBehavior(void *t_data)
             buffor[vread] = '\0';
 
             token = strtok(buffor, s);//get token
-            printf("%s\n",token);
+            printf("%s\n%s\n",buffor,token);
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
