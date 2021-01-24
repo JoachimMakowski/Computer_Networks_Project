@@ -53,10 +53,9 @@ public class Controller {
 
             //Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
             //OutputStream os = clientSocket.getOutputStream();
-            //String msg = nick.getText();
+            //String msg = "0\n" + nick.getText();
             //os.write(msg.getBytes());
 
-            //client.Main.login();
             login();
         }
         if (nick.getText().trim().length() > 25){

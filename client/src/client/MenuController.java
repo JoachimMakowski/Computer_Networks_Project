@@ -36,6 +36,8 @@ public class MenuController {
     @FXML
     private Button logoutButton;
 
+    private String nickname;
+
     @FXML
     void initialize() {
         userList.getItems().add("Item 1");
@@ -43,6 +45,7 @@ public class MenuController {
     }
 
     void initData(String nick) {
+        this.nickname = nick;
         userList.getItems().add(nick);
     }
 
@@ -82,9 +85,9 @@ public class MenuController {
             if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200) {
                 System.out.println("SENDING MESSAGE");
 
-                String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+                //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
 
-                Text text = new Text(timeStamp + "  " + typeMessage.getText());
+                Text text = new Text(this.nickname + "  " + typeMessage.getText());
                 text.setStyle("-fx-font-size: 14px;");
                 //text.setFill(Color.RED);
                 text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
