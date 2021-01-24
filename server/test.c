@@ -39,26 +39,22 @@ int main () {
    
    /* get the first token */
    token = strtok(str, s);
-   printf( "%c\n", *token );
-   char asdasd[10] = "asda\nsdasd";
-   token = strtok(asdasd, s);
-   printf( "%s\n", token );
-   
-   token = strtok(NULL, s);
-   printf( "%s\n", token );
-   /* walk through other tokens 
+   //printf( "%s\n", token );
+
+   // walk through other tokens 
    while( token != NULL ) {
-      printf( "%c\n", *token );
+      printf( "%s\n", token );
     
       token = strtok(NULL, s);
-   }*/
+   }
    char asd[20] = "asd";
    printf("qwerty");
    User nums[13];
+   memset(nums,'\0',sizeof(User)*13);
    strcpy(nums[2].user, asd);
    //nums[2]->logged = &f_false;
    for(i=0;i<13;i++) {
-      if(nums[i].user==NULL) {
+      if(*nums[i].user=='\0') {
          printf("null char found! in position: %d\n",i);
       }
       else {
