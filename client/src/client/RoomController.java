@@ -40,6 +40,11 @@ public class RoomController {
     private Label emptyRoomNameError;
 
     @FXML
+    void initialize() {
+
+    }
+
+    @FXML
     public void checkNewRoom(){
         newRoomNameError.setVisible(false);
         newRoomTakenError.setVisible(false);

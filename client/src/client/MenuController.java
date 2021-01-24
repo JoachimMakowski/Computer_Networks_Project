@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
@@ -32,22 +33,53 @@ public class MenuController {
     private ListView<String> roomList;
     @FXML
     private ListView<String> userList;
+    @FXML
+    private Button logoutButton;
 
+    @FXML
+    void initialize() {
+        userList.getItems().add("Item 1");
+        userList.getItems().add("Item 2");
+    }
+
+    void initData(String nick) {
+        userList.getItems().add(nick);
+    }
+
+    public void logout() throws IOException {
+        FXMLLoader loader = new FXMLLoader(Main.class.getResource("login.fxml"));
+
+        Stage loginStage = new Stage();
+        loginStage.setScene(new Scene(loader.load()));
+        loginStage.setTitle("Logout from IRC app");
+        loginStage.setResizable(false);
+
+        loginStage.show();
+
+        loginStage.setOnCloseRequest(e ->
+        {
+            e.consume();
+            Main.closeProgram(loginStage);
+        });
+
+        Stage thisStage = (Stage) logoutButton.getScene().getWindow();
+        thisStage.close();
+    }
 
     @FXML
     public void logoutControl() throws IOException {
         Boolean answer = ConfirmBox.display("LOGOUT", "Are you sure to logout?", "OK", "Cancel");
         if (answer) {
-            Main.logout();
+            logout();
         }
     }
 
     @FXML
     public void send(KeyEvent e) throws IOException {
 
-        //checks if user tries to send an empty message
+        //checks if user tries to send an empty message or message is too long
         if(e.getCode().equals(KeyCode.ENTER)){
-            if (typeMessage.getText().length() > 1){
+            if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200) {
                 System.out.println("SENDING MESSAGE");
 
                 String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -60,7 +92,7 @@ public class MenuController {
                 typeMessage.clear();
             }
             else{
-                System.out.println("MESSAGE TOO SHORT!");
+                System.out.println("WRONG SIZE OF A MESSAGE!");
                 typeMessage.clear();
             }
         }
