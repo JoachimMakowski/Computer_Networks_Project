@@ -51,10 +51,12 @@ public class Controller {
             System.out.println("Welcome " + nick.getText());
             //User user = new User(nick.getText());
 
-            //Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
-            //OutputStream os = clientSocket.getOutputStream();
-            //String msg = "0\n" + nick.getText();
-            //os.write(msg.getBytes());
+            Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
+            OutputStream os = clientSocket.getOutputStream();
+            String msg = "0\n" + nick.getText();
+            os.write(msg.getBytes());
+
+
 
             login();
         }

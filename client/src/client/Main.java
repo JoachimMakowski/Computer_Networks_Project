@@ -9,9 +9,10 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 /*      0 - login
-        00 - user already logged
-        01 - limit of active user on the server
-        02 - limit of users saved to the server
+        00 - user logged successfully
+        01 - user already logged
+        02 - limit of active user on the server
+        03 - limit of users saved to the server
         1 - logout
         2 - join room
         20 - successfully joined the room
