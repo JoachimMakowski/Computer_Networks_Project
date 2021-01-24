@@ -10,6 +10,7 @@
 typedef struct{
     char name[20];
     User users[MAX_USERS_IN_ROOM];
+    bool actual_users[MAX_USERS_IN_ROOM];//used to sending messages each bool variable actual user corresponds to User variable
     Message messages[MAX_MESSAGES];
     int number_of_messages;//after creating room set number_of_messages = 0
     int number_of_users;

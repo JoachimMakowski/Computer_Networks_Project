@@ -11,6 +11,8 @@ typedef struct{
     User user2;
     Message messages[MAX_MESSAGES];
     int number_of_messages; //after creating room set number_of_messages = 0
+    bool is_active_user1;
+    bool is_active_user2;
 }Useruserchat;
 
 void add_message_to_chat(Useruserchat useruserchat, Message message){//delete old messages(older then 1000 messages)
