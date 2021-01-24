@@ -22,6 +22,8 @@ import javafx.stage.Stage;
         32 - out of space on the server (10 rooms)
         4 - message room
         5 - message face2face
+        6 - change room (username, type of conversation from ('0' room, '1' chat), room name/username2 from,
+            type of conversation to ('0' room, '1' chat), room name/username2 to)
 */
 
 public class Main extends Application {
