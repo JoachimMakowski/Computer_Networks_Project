@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<SplitPane dividerPositions="0.22605790645879734, 0.7405345211581291" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.MenuController">
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" SplitPane.resizableWithParent="false">
+        <SplitPane dividerPositions="0.7225258044930176, 0.8184578020643596" orientation="VERTICAL" prefHeight="598.0" prefWidth="170.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="591.0" prefWidth="173.0" SplitPane.resizableWithParent="false">
+                <ListView fx:id="roomList" layoutY="29.0" prefHeight="828.0" prefWidth="169.0" AnchorPane.bottomAnchor="-323.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0" />
+                <Label layoutX="7.0" prefHeight="30.0" prefWidth="163.0" text="Rooms" />
+            </AnchorPane>
+            <Button fx:id="createRoomButton" mnemonicParsing="false" onAction="#createRoom" text="Create new room" />
+            <Button fx:id="joinRoomButton" mnemonicParsing="false" onAction="#joinRoom" text="Join room" />
+        </SplitPane>
+    </AnchorPane>
+    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="256.0" prefWidth="416.0">
+        <SplitPane dividerPositions="0.6442516268980477" layoutX="14.0" orientation="VERTICAL" prefHeight="698.0" prefWidth="476.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="-20.0" AnchorPane.topAnchor="0.0">
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="446.0" prefWidth="433.0">
+                <ScrollPane fx:id="scroll" layoutY="14.0" prefViewportHeight="293.0" prefViewportWidth="414.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="14.0">
+                    <TextFlow fx:id="chat" focusTraversable="true" prefWidth="395.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <cursor>
+                            <Cursor fx:constant="DEFAULT" />
+                        </cursor>
+                    </TextFlow>
+                </ScrollPane>
+            </AnchorPane>
+            <AnchorPane>
+                <TextArea fx:id="typeMessage" layoutX="4.0" layoutY="98.0" nodeOrientation="LEFT_TO_RIGHT" onKeyPressed="#send" prefHeight="122.0" prefWidth="445.0" promptText="Enter your message here" wrapText="true" AnchorPane.bottomAnchor="25.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="25.0" AnchorPane.topAnchor="98.0">
+                    <cursor>
+                        <Cursor fx:constant="TEXT" />
+                    </cursor>
+                </TextArea>
+            </AnchorPane>
+        </SplitPane>
+    </AnchorPane>
+    <AnchorPane prefHeight="698.0" prefWidth="204.0">
+        <children>
+            <SplitPane dividerPositions="0.8535353535353535" orientation="VERTICAL" prefHeight="698.0" prefWidth="230.0">
+                <items>
+                    <AnchorPane SplitPane.resizableWithParent="false">
+                        <ListView fx:id="userList" layoutX="-1.0" layoutY="30.0" prefHeight="604.0" prefWidth="231.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="30.0" />
+                        <Label layoutX="8.0" layoutY="5.0" prefHeight="23.0" prefWidth="163.0" text="Users" />
+                    </AnchorPane>
+                    <Button fx:id="logoutButton" alignment="CENTER" mnemonicParsing="false" onAction="#logoutControl" prefHeight="0.0" prefWidth="119.0" text="Logout" />
+                </items>
+            </SplitPane>
+        </children></AnchorPane>
+</SplitPane>
