@@ -57,12 +57,14 @@ void *ThreadBehavior(void *t_data)
     
     while(1){
         char buffor[300];
+        char return_value[30];
         int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
-            00 - already logged
-            01 - server is full
-            02 - not place for user
+            00 - successfull
+            01 - already logged
+            02 - server is full
+            03 - not place for user
         1 - logout
         2 - join room
             20 - sending messages
@@ -98,7 +100,7 @@ void *ThreadBehavior(void *t_data)
             buffor[vread] = '\0';
 
             token = strtok(buffor, s);//get token
-            printf("%s\n%s\n",buffor,token);
+            printf("%s\n",buffor);
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
@@ -109,6 +111,8 @@ void *ThreadBehavior(void *t_data)
                         find_user = true;
                         if(users[i].logged == false) {
                             users[i].logged = true;
+                            strcpy(return_value,"00");
+                            write(th_data->deskryptor, return_value, strlen(return_value));
                             break;
                         }
                         else{
@@ -128,6 +132,8 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].is_active_user1 = false;
                             useruserchats[number_of_chats].is_active_user2 = false;
                             number_of_chats++;
+                            strcpy(return_value,"00");
+                            write(th_data->deskryptor, return_value, strlen(return_value));
                         }
                         number_of_users++;
                         break;
@@ -334,7 +340,7 @@ void *ThreadBehavior(void *t_data)
                 //action not recognized
             }
             //printf("%s",buffor);
-            printf("Mutex start: %d\n",th_data -> deskryptor);
+            /*printf("Mutex start: %d\n",th_data -> deskryptor);
             pthread_mutex_lock(&read_mutex);
             for (int i =0;i<QUEUE_SIZE;i++){
                 if(desc_table[i]!=th_data -> deskryptor){
@@ -342,7 +348,7 @@ void *ThreadBehavior(void *t_data)
                 }
             }
             pthread_mutex_unlock(&read_mutex);
-            printf("Mutex stop: %d\n",th_data -> deskryptor);
+            printf("Mutex stop: %d\n",th_data -> deskryptor);*/
         }
         else if (vread == 0){
             printf("Disconnecting...%d\n",th_data -> deskryptor);
