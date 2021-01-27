@@ -10,10 +10,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 public class Controller {
 
@@ -43,22 +42,28 @@ public class Controller {
         loginErrorEmpty.setVisible(false);
         loginErrorLong.setVisible(false);
         connectingLabel.setVisible(false);
+        serverErrorConnection.setVisible(false);
         if (nick.getText() == null || nick.getText().trim().isEmpty()) {
             loginErrorEmpty.setVisible(true);
         }
         if (nick.getText().trim().length() <= 25 && nick.getText().trim().length() > 0) {
-            connectingLabel.setVisible(true);
-            System.out.println("Welcome " + nick.getText());
-            //User user = new User(nick.getText());
 
-            Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
-            OutputStream os = clientSocket.getOutputStream();
-            String msg = "0\n" + nick.getText();
-            os.write(msg.getBytes());
+            try{
+                Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
+                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            } catch (UnknownHostException e) {
+                System.out.println("Unknown host name: " + e);
+            } catch (IOException e) {
+                serverErrorConnection.setVisible(true);
+            }
 
+            //connectingLabel.setVisible(true);
+            //System.out.println("Welcome " + nick.getText());
+            //String msg = "0\n" + nick.getText();
+            //out.write(String.valueOf(msg.getBytes()));
+            //login();
 
-
-            login();
         }
         if (nick.getText().trim().length() > 25){
             loginErrorLong.setVisible(true);
