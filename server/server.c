@@ -22,7 +22,6 @@
 #define MAX_USERS 20//max value of users
 
 //uchwyt na mutex
-pthread_mutex_t read_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t exit_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t start_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t add_user_mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -30,6 +29,7 @@ pthread_mutex_t add_room_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t add_user_to_room_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t sending_message_to_room_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t sending_message_to_chat_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t users_logged_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 int desc_table[QUEUE_SIZE];
 int clients = 0; //how many clients is actually logged
@@ -61,9 +61,10 @@ void *ThreadBehavior(void *t_data)
         int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
-            00 - already logged
-            01 - server is full
-            02 - not place for user
+            00 - OK
+            01 - already logged
+            02 - server is full
+            03 - not place for user
         1 - logout
         2 - join room
             20 - sending messages
@@ -77,7 +78,8 @@ void *ThreadBehavior(void *t_data)
             41 - 
         5 - message face2face
         6 - change room
-
+        7 - actual logged users
+            70\n%s\n - actually logged users %s = list of users separated by ","
         potrzebuję jeszcze leave room
         */
             const char s[2] = "\n";
@@ -109,11 +111,21 @@ void *ThreadBehavior(void *t_data)
                     if(!strcmp(users[i].user,token)){
                         find_user = true;
                         if(users[i].logged == false) {
+                            pthread_mutex_lock(&users_logged_mutex);
                             users[i].logged = true;
+                            pthread_mutex_unlock(&users_logged_mutex);
+                            users[i].descriptor = th_data->deskryptor;
+                            //add info about rooms and users online
+                            strcpy(return_value,"00");
+                            printf("IM SENDING!!!\n");
+                            write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
                         else{
                             //return info that user is already logged
+                            strcpy(return_value,"01");
+                            printf("IM SENDING!!!\n");
+                            write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
                     }
@@ -121,18 +133,22 @@ void *ThreadBehavior(void *t_data)
                         find_user = true;
                         //set new user and add chat with everyone else
                         strcpy(users[i].user,token);
+                        pthread_mutex_lock(&users_logged_mutex);
                         users[i].logged=true;
+                        pthread_mutex_unlock(&users_logged_mutex);
+                        users[i].descriptor = th_data->deskryptor;
                         for (int j = 0;j<number_of_users;j++){
                             useruserchats[number_of_chats].user1 = users[j];
                             useruserchats[number_of_chats].user1 = users[i];
                             useruserchats[number_of_chats].number_of_messages=0;
                             useruserchats[number_of_chats].is_active_user1 = false;
                             useruserchats[number_of_chats].is_active_user2 = false;
-                            strcpy(return_value,"00");
-                            printf("IM SENDING!!!\n");
-                            write(th_data->deskryptor,return_value,sizeof(return_value));
                             number_of_chats++;
                         }
+                        //add info about users online
+                        strcpy(return_value,"00");
+                        printf("IM SENDING!!!\n");
+                        write(users[i].descriptor,return_value,sizeof(return_value));
                         number_of_users++;
                         break;
                     }
@@ -140,7 +156,9 @@ void *ThreadBehavior(void *t_data)
                 pthread_mutex_unlock(&add_user_mutex);
                 //not place avalaible for new user
                 if(!find_user){
-                    
+                    strcpy(return_value,"03");
+                    printf("IM SENDING!!!\n");
+                    write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
             }
             else if(*token == '1'){//1 - logout
@@ -150,18 +168,21 @@ void *ThreadBehavior(void *t_data)
                     if(!strcmp(users[i].user,token)){
                         find_user = true;
                         if(users[i].logged == true){
+                            pthread_mutex_lock(&users_logged_mutex);
                             users[i].logged = false;
+                            pthread_mutex_unlock(&users_logged_mutex);
                             break;
                         }
                         else{
                             //return exception - user is not logged
-
+                            printf("User is already offline\n");
                             break;
                         }
                     }
                 }
                 if(!find_user){
                     //there is no such user
+                    printf("There is no such user\n");
                 }
             }
             else if(*token == '2'){//2 - join room
@@ -180,6 +201,7 @@ void *ThreadBehavior(void *t_data)
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 add_user(rooms[i],users[j]);
                                 pthread_mutex_lock(&add_user_to_room_mutex);
+                                //send all messages to user
                                 break;
                             }
                         }
@@ -188,9 +210,13 @@ void *ThreadBehavior(void *t_data)
                 }
                 if(!find_room){
                     //there is no such room name
+                    strcpy(return_value,"21");
+                    printf("there is no such room %s\n", token);
+                    write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
                 else if(!find_user){
                     //room is ok, no such username
+                    printf("NO SUCH USER - ROOM IS OK\n");
                 }
                 //if the room is not found then the user is not recognized
             }
@@ -201,19 +227,29 @@ void *ThreadBehavior(void *t_data)
                 for(int i = 0; i<MAX_ROOMS;i++){
                     if(!strcmp(token,rooms[i].name)){
                         //room already exists
+                        strcpy(return_value,"31");
+                        printf("Room %s already exists\n", token);
+                        write(th_data->deskryptor,return_value,sizeof(return_value));
+                        break;
                     }
                     else if(i>=number_of_rooms){
                         strcpy(rooms[i].name,token);
                         rooms[i].number_of_users = 0;
-                        rooms[i].number_of_messages = 0;
+                        rooms[i].number_of_messages = 0;//change to 1 if user is in room automatically after creating room
                         find_free_room = true;
                         number_of_rooms++;
+                        strcpy(return_value,"30");
+                        printf("IM SENDING!!!\n");
+                        write(th_data->deskryptor,return_value,sizeof(return_value));
                         break;
                     }
                 }
                 pthread_mutex_unlock(&add_room_mutex);
                 if(!find_free_room){
                     //there is no free room, whole server is occupied
+                    strcpy(return_value,"32");
+                    printf("SERVER IS FULL, CAN'T ADD NEW ROOM\n");
+                    write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
             }
             else if(*token == '4'){//4 - message room
@@ -235,6 +271,7 @@ void *ThreadBehavior(void *t_data)
                                 pthread_mutex_lock(&sending_message_to_room_mutex);
                                 add_message_to_room(rooms[i],message);
                                 pthread_mutex_unlock(&sending_message_to_room_mutex);
+                                //send message to all actually logged to room users
                                 break;
                             }
                         }
@@ -243,9 +280,11 @@ void *ThreadBehavior(void *t_data)
                 }
                 if(!find_room){
                     //there is no such room name
+                    printf("There is no such room: %s\n",token2);
                 }
                 else if(!find_user){
                     //room is ok, no such username
+                    printf("there is no such user: %s",token3);
                 }
                 //if the room is not found then the user is not recognized
             }
@@ -334,19 +373,12 @@ void *ThreadBehavior(void *t_data)
                     //room is ok, no such username
                 }
                 //if the room is not found then the user is not recognized
+            }else if(*token=='7'){ //actually logged users
+
             }else{
                 //action not recognized
             }
             //printf("%s",buffor);
-            printf("Mutex start: %d\n",th_data -> deskryptor);
-            pthread_mutex_lock(&read_mutex);
-            for (int i =0;i<QUEUE_SIZE;i++){
-                if(desc_table[i]!=th_data -> deskryptor){
-                    write(desc_table[i], buffor, strlen(buffor));	
-                }
-            }
-            pthread_mutex_unlock(&read_mutex);
-            printf("Mutex stop: %d\n",th_data -> deskryptor);
         }
         else if (vread == 0){
             printf("Disconnecting...%d\n",th_data -> deskryptor);
@@ -354,6 +386,13 @@ void *ThreadBehavior(void *t_data)
             pthread_mutex_lock(&exit_mutex);
             clients--;
             pthread_mutex_unlock(&exit_mutex);
+            for(int i=0;i<MAX_USERS;i++){
+                if(th_data->deskryptor==users[i].descriptor){
+                    pthread_mutex_lock(&users_logged_mutex);
+                    users[i].logged = false;
+                    pthread_mutex_unlock(&users_logged_mutex);
+                }
+            }
             printf("Clients connected to the server: %d\n",clients);
             close(th_data -> deskryptor);
             pthread_exit(NULL);
@@ -449,11 +488,17 @@ int main(int argc, char* argv[])
             handleConnection(connection_socket_descriptor);
         }
         else{
+            char return_value_2[20];
             printf("Too many clients connected to the server, disconnecting %d...\n", connection_socket_descriptor);
+            strcpy(return_value_2,"02");
+            printf("IM SENDING!!!\n");
+            write(connection_socket_descriptor,return_value_2,sizeof(return_value_2));
             close(connection_socket_descriptor);
         }
    }
-
+   for(int i=0;i<MAX_USERS;i++){
+       close(users[i].descriptor);
+   }
    close(server_socket_descriptor);
    return(0);
 }
