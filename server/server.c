@@ -16,7 +16,6 @@
 #include "user.c"
 #include "useruserchat.c"
 
-#define SERVER_PORT 1234
 #define QUEUE_SIZE 10//how many users in the same time
 #define MAX_ROOMS 10//how many rooms
 #define MAX_USERS 20//max value of users
@@ -429,7 +428,11 @@ int main(int argc, char* argv[])
    int listen_result;
    char reuse_addr_val = 1;
    struct sockaddr_in server_address;
-   struct thread_data_t *t_data;
+
+   if(argc!=3){
+       printf("Please set 2 arguments: 1 - adress IP, 2 - server port\n");
+       return(0);
+   }
 
    for (int i = 0; i< 3;i++){
        desc_table[i] = 0;
@@ -439,7 +442,7 @@ int main(int argc, char* argv[])
    memset(&server_address, 0, sizeof(struct sockaddr));
    server_address.sin_family = AF_INET;
    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-   server_address.sin_port = htons(SERVER_PORT);
+   server_address.sin_port = htons(atoi(argv[2]));
 
    server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
    if (server_socket_descriptor < 0)
