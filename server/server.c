@@ -144,7 +144,7 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].is_active_user2 = false;
                             number_of_chats++;
                         }
-                        //add info about users online
+                        //add info about users online and room
                         strcpy(return_value,"00");
                         printf("IM SENDING!!!\n");
                         write(users[i].descriptor,return_value,sizeof(return_value));
@@ -198,7 +198,7 @@ void *ThreadBehavior(void *t_data)
                                 find_user = true;
                                 //add new user to room
                                 pthread_mutex_lock(&add_user_to_room_mutex);
-                                add_user(rooms[i],users[j]);
+                                add_user_to_room(rooms[i],users[j]);
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 //send all messages to user
                                 break;
@@ -234,7 +234,10 @@ void *ThreadBehavior(void *t_data)
                     else if(i>=number_of_rooms){
                         strcpy(rooms[i].name,token);
                         rooms[i].number_of_users = 0;
-                        rooms[i].number_of_messages = 0;//change to 1 if user is in room automatically after creating room
+                        rooms[i].number_of_messages = 0;
+                        pthread_mutex_lock(&add_user_to_room_mutex);
+                        //add_user_to_room(rooms[i],users[j]); i have to find user by socket descriptor
+                        pthread_mutex_lock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
                         strcpy(return_value,"30");
