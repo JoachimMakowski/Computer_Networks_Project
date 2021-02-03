@@ -33,6 +33,10 @@ public class Controller {
     @FXML
     private Button button;
 
+    private Socket clientSocket;
+    private PrintWriter writer;
+    private BufferedReader reader;
+
     @FXML
     void initialize() {
     }
@@ -49,20 +53,29 @@ public class Controller {
         if (nick.getText().trim().length() <= 25 && nick.getText().trim().length() > 0) {
 
             try{
-                Socket clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
-                PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                this.clientSocket = new Socket(address.getText(), Integer.parseInt(port.getText()));
+                this.writer = new PrintWriter(clientSocket.getOutputStream(), true);
+                this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
+                String msg = "0\n" + nick.getText();
+                writer.println(msg);
+
             } catch (UnknownHostException e) {
                 System.out.println("Unknown host name: " + e);
+                return;
             } catch (IOException e) {
                 serverErrorConnection.setVisible(true);
+                return;
             }
 
-            //connectingLabel.setVisible(true);
-            //System.out.println("Welcome " + nick.getText());
-            //String msg = "0\n" + nick.getText();
-            //out.write(String.valueOf(msg.getBytes()));
-            //login();
+            String serverMessage = reader.readLine();
+            System.out.println(serverMessage);
+
+            if (serverMessage.equals("00")){
+                connectingLabel.setVisible(true);
+                System.out.println("Welcome " + nick.getText());
+                login();
+            }
 
         }
         if (nick.getText().trim().length() > 25){
@@ -79,7 +92,8 @@ public class Controller {
         menuStage.setResizable(false);
 
         MenuController controller = loader.getController();
-        controller.initData(nick.getText());
+        //only added for tests
+        controller.initData(nick.getText(), this.clientSocket, this.writer, this.reader);
 
         menuStage.show();
 
