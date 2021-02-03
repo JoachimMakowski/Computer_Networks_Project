@@ -19,9 +19,11 @@ import javafx.scene.text.TextFlow;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.io.PrintWriter;
+import java.net.Socket;
+
 
 public class MenuController {
 
@@ -37,6 +39,9 @@ public class MenuController {
     private Button logoutButton;
 
     private String nickname;
+    private Socket clientSocket;
+    private PrintWriter writer;
+    private BufferedReader reader;
 
     @FXML
     void initialize() {
@@ -44,8 +49,12 @@ public class MenuController {
         userList.getItems().add("Item 2");
     }
 
-    void initData(String nick) {
+    void initData(String nick, Socket socket, PrintWriter printWriter, BufferedReader bufferedReader) {
         this.nickname = nick;
+        //only added for tests
+        this.clientSocket = socket;
+        this.writer = printWriter;
+        this.reader = bufferedReader;
         userList.getItems().add(nick);
     }
 
@@ -73,6 +82,9 @@ public class MenuController {
     public void logoutControl() throws IOException {
         Boolean answer = ConfirmBox.display("LOGOUT", "Are you sure to logout?", "OK", "Cancel");
         if (answer) {
+            String msg = "1\n" + this.nickname;
+            System.out.println(msg);
+            writer.println(msg);
             logout();
         }
     }
