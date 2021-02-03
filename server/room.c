@@ -30,9 +30,17 @@ void add_message_to_room(Room room, Message message){//delete old messages(older
     }
 }
 
-/*Message *getMessages() {
-    return messages;
-}*/
+char *getMessages(Room room) {
+    char *messages_to_send;
+    for(int i=0;i<room.number_of_messages;i++){
+        messages_to_send = strcat(messages_to_send,room.messages[i].user.user);
+        messages_to_send = strcat(messages_to_send,": ");
+        messages_to_send = strcat(messages_to_send,room.messages[i].content);
+        messages_to_send = strcat(messages_to_send,"|");//| is our delimeter
+    }
+    messages_to_send = strcat(messages_to_send,"\n");
+    return messages_to_send;
+}
 
 //add_user
 
