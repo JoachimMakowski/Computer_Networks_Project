@@ -235,8 +235,15 @@ void *ThreadBehavior(void *t_data)
                         strcpy(rooms[i].name,token);
                         rooms[i].number_of_users = 0;
                         rooms[i].number_of_messages = 0;
+                        printf("Im creating new room: %s\n",rooms[i].name);
                         pthread_mutex_lock(&add_user_to_room_mutex);
                         //add_user_to_room(rooms[i],users[j]); i have to find user by socket descriptor
+                        for(int j=0;j<MAX_USERS;j++){
+                            if(th_data->deskryptor==users[j].descriptor){
+                                printf("Im adding new user to new room: %s\n",users[j].user);
+                                add_user_to_room(rooms[i],users[j]);
+                            }
+                        }
                         pthread_mutex_lock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
