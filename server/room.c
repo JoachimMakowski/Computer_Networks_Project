@@ -36,7 +36,7 @@ void add_message_to_room(Room room, Message message){//delete old messages(older
 
 //add_user
 
-void add_user(Room room, User user){
+void add_user_to_room(Room room, User user){
     bool find_place = false;
     for(int i=0;i<MAX_USERS_IN_ROOM;i++){
         if(!strcmp(user.user,room.users[i].user)){

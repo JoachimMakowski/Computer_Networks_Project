@@ -16,7 +16,6 @@
 #include "user.c"
 #include "useruserchat.c"
 
-#define SERVER_PORT 1234
 #define QUEUE_SIZE 10//how many users in the same time
 #define MAX_ROOMS 10//how many rooms
 #define MAX_USERS 20//max value of users
@@ -145,7 +144,7 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].is_active_user2 = false;
                             number_of_chats++;
                         }
-                        //add info about users online
+                        //add info about users online and room
                         strcpy(return_value,"00");
                         printf("IM SENDING!!!\n");
                         write(users[i].descriptor,return_value,sizeof(return_value));
@@ -199,7 +198,7 @@ void *ThreadBehavior(void *t_data)
                                 find_user = true;
                                 //add new user to room
                                 pthread_mutex_lock(&add_user_to_room_mutex);
-                                add_user(rooms[i],users[j]);
+                                add_user_to_room(rooms[i],users[j]);
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 //send all messages to user
                                 break;
@@ -235,7 +234,17 @@ void *ThreadBehavior(void *t_data)
                     else if(i>=number_of_rooms){
                         strcpy(rooms[i].name,token);
                         rooms[i].number_of_users = 0;
-                        rooms[i].number_of_messages = 0;//change to 1 if user is in room automatically after creating room
+                        rooms[i].number_of_messages = 0;
+                        printf("Im creating new room: %s\n",rooms[i].name);
+                        pthread_mutex_lock(&add_user_to_room_mutex);
+                        //add_user_to_room(rooms[i],users[j]); i have to find user by socket descriptor
+                        for(int j=0;j<MAX_USERS;j++){
+                            if(th_data->deskryptor==users[j].descriptor){
+                                printf("Im adding new user to new room: %s\n",users[j].user);
+                                add_user_to_room(rooms[i],users[j]);
+                            }
+                        }
+                        pthread_mutex_lock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
                         strcpy(return_value,"30");
@@ -429,7 +438,11 @@ int main(int argc, char* argv[])
    int listen_result;
    char reuse_addr_val = 1;
    struct sockaddr_in server_address;
-   struct thread_data_t *t_data;
+
+   if(argc!=3){
+       printf("Please set 2 arguments: 1 - adress IP, 2 - server port\n");
+       return(0);
+   }
 
    for (int i = 0; i< 3;i++){
        desc_table[i] = 0;
@@ -439,7 +452,7 @@ int main(int argc, char* argv[])
    memset(&server_address, 0, sizeof(struct sockaddr));
    server_address.sin_family = AF_INET;
    server_address.sin_addr.s_addr = htonl(INADDR_ANY);
-   server_address.sin_port = htons(SERVER_PORT);
+   server_address.sin_port = htons(atoi(argv[2]));
 
    server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
    if (server_socket_descriptor < 0)
