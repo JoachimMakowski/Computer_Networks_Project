@@ -56,7 +56,7 @@ void *ThreadBehavior(void *t_data)
     
     while(1){
         char buffor[300];
-        char return_value[20];
+        char *return_value;//it cant be a pointer
         int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
@@ -100,7 +100,7 @@ void *ThreadBehavior(void *t_data)
             buffor[vread] = '\0';
 
             token = strtok(buffor, s);//get token
-            printf("%s\n%s\n",buffor,token);
+            //printf("%s\n%s\n",buffor,token);
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
@@ -115,20 +115,28 @@ void *ThreadBehavior(void *t_data)
                             pthread_mutex_unlock(&users_logged_mutex);
                             users[i].descriptor = th_data->deskryptor;
                             //add info about rooms and users online
-                            strcpy(return_value,"00");
+                            strcpy(return_value,"00\n");
                             printf("IM SENDING!!!\n");
+                            for(int j=0;j<number_of_users;j++){
+                                if(users[j].logged){
+                                    return_value = strcat(return_value,users[j].user);
+                                    return_value = strcat(return_value,"|");//| is a delimeter
+                                }
+                            }
+                            return_value = strcat(return_value,"\n");
                             write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
                         else{
                             //return info that user is already logged
-                            strcpy(return_value,"01");
+                            strcpy(return_value,"01\n");
                             printf("IM SENDING!!!\n");
                             write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
                     }
                     else if(i>=number_of_users){
+                        
                         find_user = true;
                         //set new user and add chat with everyone else
                         strcpy(users[i].user,token);
@@ -144,9 +152,17 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].is_active_user2 = false;
                             number_of_chats++;
                         }
+                        printf("%s\n",token);
                         //add info about users online and room
-                        strcpy(return_value,"00");
+                        strcpy(return_value,"00\n");
                         printf("IM SENDING!!!\n");
+                        for(int j=0;j<number_of_users;j++){
+                                if(users[j].logged){
+                                    return_value = strcat(return_value,users[j].user);
+                                    return_value = strcat(return_value,"|");//| is a delimeter
+                                }
+                            }
+                            return_value = strcat(return_value,"\n");
                         write(users[i].descriptor,return_value,sizeof(return_value));
                         number_of_users++;
                         break;
@@ -155,7 +171,7 @@ void *ThreadBehavior(void *t_data)
                 pthread_mutex_unlock(&add_user_mutex);
                 //not place avalaible for new user
                 if(!find_user){
-                    strcpy(return_value,"03");
+                    strcpy(return_value,"03\n");
                     printf("IM SENDING!!!\n");
                     write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
@@ -189,18 +205,23 @@ void *ThreadBehavior(void *t_data)
                 token2 = strtok(NULL, s); //username
                 bool find_room = false;
                 bool find_user = false;
+                char *messages_to_send;
                 for(int i = 0;i<MAX_ROOMS;i++)
                 {
                     if(!strcmp(token,rooms[i].name)){
                         find_room = true;
                         for(int j = 0;j<MAX_USERS;j++){
                             if(!strcmp(users[j].user,token2)){
+                                messages_to_send = strcat(messages_to_send,"20\n");
                                 find_user = true;
                                 //add new user to room
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 add_user_to_room(rooms[i],users[j]);
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 //send all messages to user
+                                messages_to_send = getMessages(rooms[i]);
+                                printf("%s",messages_to_send);
+                                write(th_data->deskryptor,messages_to_send,sizeof(messages_to_send));
                                 break;
                             }
                         }
@@ -209,7 +230,7 @@ void *ThreadBehavior(void *t_data)
                 }
                 if(!find_room){
                     //there is no such room name
-                    strcpy(return_value,"21");
+                    strcpy(return_value,"21\n");
                     printf("there is no such room %s\n", token);
                     write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
@@ -226,7 +247,7 @@ void *ThreadBehavior(void *t_data)
                 for(int i = 0; i<MAX_ROOMS;i++){
                     if(!strcmp(token,rooms[i].name)){
                         //room already exists
-                        strcpy(return_value,"31");
+                        strcpy(return_value,"31\n");
                         printf("Room %s already exists\n", token);
                         write(th_data->deskryptor,return_value,sizeof(return_value));
                         break;
@@ -237,7 +258,7 @@ void *ThreadBehavior(void *t_data)
                         rooms[i].number_of_messages = 0;
                         printf("Im creating new room: %s\n",rooms[i].name);
                         pthread_mutex_lock(&add_user_to_room_mutex);
-                        //add_user_to_room(rooms[i],users[j]); i have to find user by socket descriptor
+                        //i have to find user by socket descriptor
                         for(int j=0;j<MAX_USERS;j++){
                             if(th_data->deskryptor==users[j].descriptor){
                                 printf("Im adding new user to new room: %s\n",users[j].user);
@@ -247,7 +268,7 @@ void *ThreadBehavior(void *t_data)
                         pthread_mutex_lock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
-                        strcpy(return_value,"30");
+                        strcpy(return_value,"30\n");
                         printf("IM SENDING!!!\n");
                         write(th_data->deskryptor,return_value,sizeof(return_value));
                         break;
@@ -256,7 +277,7 @@ void *ThreadBehavior(void *t_data)
                 pthread_mutex_unlock(&add_room_mutex);
                 if(!find_free_room){
                     //there is no free room, whole server is occupied
-                    strcpy(return_value,"32");
+                    strcpy(return_value,"32\n");
                     printf("SERVER IS FULL, CAN'T ADD NEW ROOM\n");
                     write(th_data->deskryptor,return_value,sizeof(return_value));
                 }
@@ -503,7 +524,7 @@ int main(int argc, char* argv[])
         else{
             char return_value_2[20];
             printf("Too many clients connected to the server, disconnecting %d...\n", connection_socket_descriptor);
-            strcpy(return_value_2,"02");
+            strcpy(return_value_2,"02\n");
             printf("IM SENDING!!!\n");
             write(connection_socket_descriptor,return_value_2,sizeof(return_value_2));
             close(connection_socket_descriptor);
