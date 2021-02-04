@@ -93,8 +93,8 @@ public class MenuController {
             String msg = "1\n" + this.nickname;
             System.out.println(msg);
             writer.println(msg);
-            logout();
             clientSocket.close();
+            logout();
         }
     }
 
@@ -155,9 +155,8 @@ public class MenuController {
         createRoomStage.setScene(new Scene(fxmlLoader.load()));
 
         RoomController roomController = fxmlLoader.getController();
-        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+        roomController.initialData(nickname, clientSocket, writer, reader);
         roomController.primaryRoomList = roomList; //to control listview from RoomController
-
         createRoomStage.show();
     }
 
@@ -168,7 +167,7 @@ public class MenuController {
         joinRoomLoader.setLocation(getClass().getResource("joinRoom.fxml"));
         AnchorPane frameJoin = joinRoomLoader.load();
         RoomController roomController = joinRoomLoader.getController();
-        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+        roomController.initialData(nickname, clientSocket, writer, reader);
 
         Stage joinRoomStage = new Stage();
         joinRoomStage.initModality(Modality.APPLICATION_MODAL);
@@ -185,7 +184,7 @@ public class MenuController {
 
         String messageUserName = "81\n" + this.nickname +  "\n" + userName;
         System.out.println(messageUserName);
-        this.writer.println(messageUserName);
+        writer.println(messageUserName);
     }
 
     @FXML
@@ -195,7 +194,7 @@ public class MenuController {
 
         String messageRoomName = "80\n" + this.nickname + "\n" + roomName;
         System.out.println(messageRoomName);
-        this.writer.println(messageRoomName);
+        writer.println(messageRoomName);
 
     }
 

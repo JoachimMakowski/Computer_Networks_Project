@@ -9,6 +9,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -75,11 +78,9 @@ public class RoomController {
 
             String roomName = "3\n" + newRoomName.getText();
             System.out.println(roomName);
-            this.writer.println(roomName);
+            writer.println(roomName);
 
-            String serverRoomMessage = reader.readLine();
-            System.out.println(serverRoomMessage);
-            System.out.println(serverRoomMessage.equals("30"));
+            String serverRoomMessage = reader.readLine().trim();
 
             switch (serverRoomMessage) {
                 case "30" -> {
@@ -106,13 +107,13 @@ public class RoomController {
             emptyRoomNameError.setVisible(true);
         }
         else {
-            String joinRoom = "2\n" + roomNameText.getText() + "\n" + this.nickname;
+            String joinRoom = "2\n" + roomNameText.getText() + "\n" + nickname;
             System.out.println(joinRoom);
-            this.writer.println(joinRoom);
+            writer.println(joinRoom);
 
-            //String serverRoomMessage = reader.readLine();
-            //System.out.println(serverRoomMessage);
-            //System.out.println(serverRoomMessage.equals("21"));
+            String serverRoomMessage = reader.readLine().trim();
+            System.out.println(serverRoomMessage);
+            System.out.println(serverRoomMessage.equals("21"));
 
             System.out.println("JOINING ROOM " + roomNameText.getText());
             Stage thisStage = (Stage) joinRoomCancelButton.getScene().getWindow();
