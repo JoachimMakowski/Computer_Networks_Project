@@ -76,14 +76,14 @@ public class Controller {
             String serverMessage = reader.readLine();
             System.out.println(serverMessage);
 
-            switch (serverMessage) {
-                case "02", ("03") -> serverErrorConnection.setVisible(true);
-                case "01" -> alreadyLoggedError.setVisible(true);
-                case "00" -> {
-                    connectingLabel.setVisible(true);
-                    System.out.println("Welcome " + nick.getText());
-                    login();
-                }
+            if ("02".equals(serverMessage) || "03".equals(serverMessage)) {
+                serverErrorConnection.setVisible(true);
+            } else if ("01".equals(serverMessage)) {
+                alreadyLoggedError.setVisible(true);
+            } else if ("00".equals(serverMessage)) {
+                connectingLabel.setVisible(true);
+                System.out.println("Welcome " + nick.getText());
+                login();
             }
 
         }
