@@ -27,6 +27,8 @@ import javafx.stage.Stage;
             type of conversation to ('0' room, '1' chat), room name/username2 to)
         7 - actual logged user
             70\n%s\n - actually logged users %s = list of users
+        8 - messages from room/ private conversation
+            ('0' room, '1' chat) + active user + from which room/user name
 */
 
 public class Main extends Application {
