@@ -1,8 +1,5 @@
 package client;
 
-import com.sun.javafx.charts.Legend;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -49,13 +46,22 @@ public class MenuController {
         userList.getItems().add("Item 2");
     }
 
-    void initData(String nick, Socket socket, PrintWriter printWriter, BufferedReader bufferedReader) {
+    void initData(String nick, Socket socket, PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
         this.nickname = nick;
+
         //only added for tests
         this.clientSocket = socket;
         this.writer = printWriter;
         this.reader = bufferedReader;
         userList.getItems().add(nick);
+
+        //request to server to get list of clients saved on the server
+        String request = "7\n";
+        writer.println(request);
+        System.out.println("REQUEST FOR CLIENTS LIST");
+
+        //String listOfUsers = reader.readLine();
+        //System.out.println(listOfUsers);
     }
 
     public void logout() throws IOException {
@@ -86,6 +92,7 @@ public class MenuController {
             System.out.println(msg);
             writer.println(msg);
             logout();
+            clientSocket.close();
         }
     }
 
@@ -94,7 +101,14 @@ public class MenuController {
 
         //checks if user tries to send an empty message or message is too long
         if(e.getCode().equals(KeyCode.ENTER)){
-            if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200) {
+
+            String selectedUser = userList.getSelectionModel().getSelectedItem();
+            System.out.println("SELECTED USER: " + selectedUser);
+
+            if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200 && selectedUser!=null) {
+                String msg = "4\n" + typeMessage.getText() + "\n" + selectedUser + "\n" + this.nickname + "\n";
+                System.out.println(msg);
+                writer.println(msg);
                 System.out.println("SENDING MESSAGE");
 
                 //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -104,42 +118,47 @@ public class MenuController {
                 //text.setFill(Color.RED);
                 text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
                 chat.getChildren().add(text);
-                typeMessage.clear();
             }
             else{
                 System.out.println("WRONG SIZE OF A MESSAGE!");
-                typeMessage.clear();
             }
+            typeMessage.clear();
         }
     }
 
     @FXML
     public void createRoom() throws IOException{
 
-        FXMLLoader fxmlLoader = new FXMLLoader();
-        fxmlLoader.setLocation(getClass().getResource("newRoom.fxml"));
-        AnchorPane frame = fxmlLoader.load();
-        RoomController c = (RoomController) fxmlLoader.getController();
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("newRoom.fxml"));
 
-        //to control listview from RoomController
-        c.primaryRoomList = roomList;
         Stage createRoomStage = new Stage();
         createRoomStage.initModality(Modality.APPLICATION_MODAL);
         createRoomStage.setTitle("Create new room");
         createRoomStage.setResizable(false);
-        createRoomStage.setScene(new Scene(frame));
+        createRoomStage.setScene(new Scene(fxmlLoader.load()));
+
+        RoomController roomController = fxmlLoader.getController();
+        System.out.println(this.nickname);
+        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+        roomController.primaryRoomList = roomList; //to control listview from RoomController
+
         createRoomStage.show();
     }
 
     @FXML
     public void joinRoom() throws IOException{
 
-        Parent joinRoomScene = FXMLLoader.load(getClass().getResource("joinRoom.fxml"));
+        FXMLLoader joinRoomLoader = new FXMLLoader();
+        joinRoomLoader.setLocation(getClass().getResource("joinRoom.fxml"));
+        AnchorPane frameJoin = joinRoomLoader.load();
+        RoomController roomController = joinRoomLoader.getController();
+        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+
         Stage joinRoomStage = new Stage();
         joinRoomStage.initModality(Modality.APPLICATION_MODAL);
         joinRoomStage.setTitle("Join room");
         joinRoomStage.setResizable(false);
-        joinRoomStage.setScene(new Scene(joinRoomScene));
+        joinRoomStage.setScene(new Scene(frameJoin));
         joinRoomStage.show();
     }
 

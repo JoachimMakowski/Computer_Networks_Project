@@ -31,6 +31,8 @@ public class Controller {
     @FXML
     private Label connectingLabel;
     @FXML
+    private Label alreadyLoggedError;
+    @FXML
     private Button button;
 
     private Socket clientSocket;
@@ -47,6 +49,8 @@ public class Controller {
         loginErrorLong.setVisible(false);
         connectingLabel.setVisible(false);
         serverErrorConnection.setVisible(false);
+        alreadyLoggedError.setVisible(false);
+
         if (nick.getText() == null || nick.getText().trim().isEmpty()) {
             loginErrorEmpty.setVisible(true);
         }
@@ -64,6 +68,7 @@ public class Controller {
                 System.out.println("Unknown host name: " + e);
                 return;
             } catch (IOException e) {
+                System.out.println("IO exception");
                 serverErrorConnection.setVisible(true);
                 return;
             }
@@ -71,10 +76,14 @@ public class Controller {
             String serverMessage = reader.readLine();
             System.out.println(serverMessage);
 
-            if (serverMessage.equals("00")){
-                connectingLabel.setVisible(true);
-                System.out.println("Welcome " + nick.getText());
-                login();
+            switch (serverMessage) {
+                case "02", ("03") -> serverErrorConnection.setVisible(true);
+                case "01" -> alreadyLoggedError.setVisible(true);
+                case "00" -> {
+                    connectingLabel.setVisible(true);
+                    System.out.println("Welcome " + nick.getText());
+                    login();
+                }
             }
 
         }
@@ -117,7 +126,5 @@ public class Controller {
             check();
         }
     }
-
-
 
 }
