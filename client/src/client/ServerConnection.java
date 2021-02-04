@@ -6,6 +6,10 @@ import java.net.Socket;
 
 public class ServerConnection implements Runnable{
 
+    private String nickname;
+    private String hostAddress;
+    private int port;
+
     private Socket socket;
     private InputStream is;
     private OutputStream os;
@@ -15,6 +19,6 @@ public class ServerConnection implements Runnable{
 
     @Override
     public void run() {
-
+        
     }
 }

@@ -13,10 +13,11 @@
         <font>
             <Font size="21.0" />
         </font></Label>
-    <Label layoutX="122.0" layoutY="200.0" text="No space on the server, wait!" textFill="RED" visible="false" />
-    <Label fx:id="loginErrorLong" layoutX="73.0" layoutY="300.0" text="Nickname cannot be longer than 25 characters!" textFill="RED" visible="false" />
-    <Label fx:id="loginErrorEmpty" layoutX="135.0" layoutY="300.0" text="Nickname can't be empty!" textFill="RED" visible="false" />
-    <Label fx:id="connectingLabel" layoutX="145.0" layoutY="300.0" text="Connecting to server..." visible="false" />
-    <Label fx:id="loginErrorTaken" layoutX="133.0" layoutY="300.0" text="Nickname already taken!" textFill="RED" visible="false" />
-   <Label fx:id="alreadyLoggedError" layoutX="147.0" layoutY="200.0" text="User already logged!" textFill="RED" visible="false" />
+    <Label layoutX="108.0" layoutY="200.0" text="No space on the server, wait!" textFill="RED" visible="false" />
+    <Label fx:id="loginErrorLong" layoutX="51.0" layoutY="300.0" text="Nickname cannot be longer than 25 characters!" textFill="RED" visible="false" />
+    <Label fx:id="loginErrorEmpty" layoutX="114.0" layoutY="300.0" text="Nickname can't be empty!" textFill="RED" visible="false" />
+    <Label fx:id="connectingLabel" layoutX="126.0" layoutY="300.0" text="Connecting to server..." visible="false" />
+    <Label fx:id="loginErrorTaken" layoutX="118.0" layoutY="300.0" text="Nickname already taken!" textFill="RED" visible="false" />
+   <Label fx:id="alreadyLoggedError" layoutX="132.0" layoutY="200.0" text="User already logged!" textFill="RED" visible="false" />
+   <Label fx:id="serverErrorConnection" layoutX="94.0" layoutY="200.0" text="Unable to connect to the server!" textFill="RED" visible="false" />
 </AnchorPane>
