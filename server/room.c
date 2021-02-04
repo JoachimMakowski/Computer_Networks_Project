@@ -62,4 +62,11 @@ void add_user_to_room(Room room, User user){
     }
 }
 
+bool is_user_in_group(Room room, User user){
+    for(int i=0;i<room.number_of_users;i++){
+        if(!strcmp(user.user,room.users[i].user)) return true;
+    }
+    return false;
+}
+
 //get_users
