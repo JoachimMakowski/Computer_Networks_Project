@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
-
 public class MenuController {
 
     @FXML
@@ -53,15 +52,25 @@ public class MenuController {
         userList.getItems().add(nick);
 
         //request to server to get list of clients saved on the server
-        /*
+
         String request = "7\n";
         writer.println(request);
         System.out.println("REQUEST FOR CLIENTS AND ROOMS LIST");
 
-        String listOfUsers = reader.readLine();
-        System.out.println(listOfUsers);
-        String listOfRooms = reader.readLine();
+        /*
+        String listOfUsers = reader.readLine().trim();
+        for (String retUsers:listOfUsers.split("|")){
+            System.out.println(retUsers);
+            userList.getItems().add(retUsers);
+        }
+
+        String listOfRooms = reader.readLine().trim();
         System.out.println(listOfRooms);
+
+        for (String retRooms:listOfRooms.split("|")){
+            System.out.println(retRooms);
+            roomList.getItems().add(retRooms);
+        }
          */
 
     }
@@ -116,7 +125,7 @@ public class MenuController {
                 writer.println(message2face);
                 System.out.println("SENDING MESSAGE2FACE");
 
-                Text text = new Text(this.nickname + "  " + typeMessage.getText());
+                Text text = new Text(this.nickname + ":  " + typeMessage.getText());
                 text.setStyle("-fx-font-size: 14px;");
                 //text.setFill(Color.RED);
                 text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
@@ -128,7 +137,7 @@ public class MenuController {
                 writer.println(messages2room);
                 System.out.println("SENDING MESSAGE2ROOM");
 
-                Text text = new Text(this.nickname + "  " + typeMessage.getText());
+                Text text = new Text(this.nickname + ":  " + typeMessage.getText());
                 text.setStyle("-fx-font-size: 14px;");
                 text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
                 chat.getChildren().add(text);
@@ -185,6 +194,17 @@ public class MenuController {
         String messageUserName = "81\n" + this.nickname +  "\n" + userName;
         System.out.println(messageUserName);
         writer.println(messageUserName);
+
+        String listOfMessagesUser = reader.readLine().trim();
+        for (String retMessages:listOfMessagesUser.split("|")){
+            System.out.println(retMessages);
+
+            Text text = new Text(retMessages);
+            text.setStyle("-fx-font-size: 14px;");
+            text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
+            chat.getChildren().add(text);
+        }
+
     }
 
     @FXML
@@ -196,6 +216,15 @@ public class MenuController {
         System.out.println(messageRoomName);
         writer.println(messageRoomName);
 
+        String listOfMessagesRoom = reader.readLine().trim();
+        for (String retMessages2:listOfMessagesRoom.split("|")){
+            System.out.println(retMessages2);
+
+            Text text = new Text(retMessages2);
+            text.setStyle("-fx-font-size: 14px;");
+            text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
+            chat.getChildren().add(text);
+        }
     }
 
 }

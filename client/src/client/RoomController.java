@@ -82,15 +82,15 @@ public class RoomController {
 
             String serverRoomMessage = reader.readLine().trim();
 
-            switch (serverRoomMessage) {
-                case "30" -> {
-                    System.out.println("Created new room #" + newRoomName.getText());
-                    initialize("#" + newRoomName.getText());
-                    Stage thisStage = (Stage) createRoomCreateButton.getScene().getWindow();
-                    thisStage.close();
-                }
-                case "31" -> newRoomTakenError.setVisible(true);
-                case "32" -> noSpaceError.setVisible(true);
+            if ("30".equals(serverRoomMessage)) {
+                System.out.println("Created new room #" + newRoomName.getText());
+                initialize("#" + newRoomName.getText());
+                Stage thisStage = (Stage) createRoomCreateButton.getScene().getWindow();
+                thisStage.close();
+            } else if ("31".equals(serverRoomMessage)) {
+                newRoomTakenError.setVisible(true);
+            } else if ("32".equals(serverRoomMessage)) {
+                noSpaceError.setVisible(true);
             }
 
         }
