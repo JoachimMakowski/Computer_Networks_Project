@@ -118,21 +118,6 @@ void *ThreadBehavior(void *t_data)
                             //add info about rooms and users online
                             strcpy(return_value,"00\n");
                             printf("IM SENDING!!!\n");
-                            for(int j=0;j<number_of_users;j++){
-                                if(users[j].logged){
-                                    strcat(return_value,users[j].user);
-                                    strcat(return_value,"|");//| is a delimeter
-                                }
-                            }
-                            strcat(return_value,"\n");
-                            //add info about rooms avalaible
-                            for(int j = 0;j<number_of_rooms;j++){
-                                if(is_user_in_group(rooms[j],users[i])){
-                                    strcat(return_value,rooms[i].name);
-                                    strcat(return_value,"|");//| is a delimeter
-                                }
-                            }
-                            strcat(return_value,"\n");
                             write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
@@ -165,14 +150,6 @@ void *ThreadBehavior(void *t_data)
                         //add info about users online and room
                         strcpy(return_value,"00\n");
                         printf("IM SENDING!!!\n");
-                        for(int j=0;j<number_of_users;j++){//
-                            if(users[j].logged){
-                                strcat(return_value,users[j].user);
-                                strcat(return_value,"|");//| is a delimeter
-                            }
-                        }
-                        strcat(return_value,"\n");
-                        strcat(return_value,"\n");//because we dont send info about rooms
                         write(users[i].descriptor,return_value,sizeof(return_value));
                         number_of_users++;
                         break;
@@ -228,7 +205,7 @@ void *ThreadBehavior(void *t_data)
                                 //add new user to room
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 add_user_to_room(rooms[i],users[j]);
-                                pthread_mutex_lock(&add_user_to_room_mutex);
+                                pthread_mutex_unlock(&add_user_to_room_mutex);
                                 //send all messages to user
                                 messages_to_send = getMessages(rooms[i]);
                                 printf("%s",messages_to_send);
@@ -277,7 +254,7 @@ void *ThreadBehavior(void *t_data)
                                 add_user_to_room(rooms[i],users[j]);
                             }
                         }
-                        pthread_mutex_lock(&add_user_to_room_mutex);
+                        pthread_mutex_unlock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
                         strcpy(return_value,"30\n");
@@ -333,17 +310,17 @@ void *ThreadBehavior(void *t_data)
             }
             else if(*token == '5'){//5 - message face2face
                 token = strtok(NULL, s); //message content
-                token2 = strtok(NULL, s); //username from
-                token3 = strtok(NULL, s); //username to
+                token2 = strtok(NULL, s); //username to
+                token3 = strtok(NULL, s); //username from
                 bool find_user_from = false;
                 bool find_user_to = false;
                 bool find_user_user_chat = false;
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token2)){
-                        find_user_from = true;
+                        find_user_to = true;
                         for(int j = 0;j<MAX_USERS;j++){
                             if(!strcmp(users[j].user,token3)){
-                                find_user_to = true;
+                                find_user_from = true;
                                 //send new message between users
                                 for(int k=0;k<MAX_USERS*(MAX_USERS-1);k++){
                                     if(((!strcmp(users[i].user,useruserchats[k].user1.user)) && (!strcmp(users[j].user,useruserchats[k].user2.user)))||
@@ -358,7 +335,7 @@ void *ThreadBehavior(void *t_data)
                                         if(users[j].logged){
                                             pthread_mutex_lock(&sending_message_to_chat_mutex);
                                             //send message
-                                            pthread_mutex_lock(&sending_message_to_chat_mutex);
+                                            pthread_mutex_unlock(&sending_message_to_chat_mutex);
                                         }
                                         else{
                                             //just store it
@@ -444,14 +421,14 @@ void *ThreadBehavior(void *t_data)
                 char *logged_users = malloc(sizeof(char)*20*20);
                 strcpy(logged_users,"70\n");
                 for(int i=0;i<number_of_users;i++){
-                    if(users[i].logged){
+                    if(users[i].logged && users[i].descriptor!=th_data->deskryptor){
                         logged_users = strcat(logged_users,users[i].user);
                         logged_users = strcat(logged_users,"|");
                     }
                 }
                 logged_users = strcat(logged_users,"\n");
                 printf("IM SENDING LOGGED USERS!!!\n");
-                write(th_data->deskryptor,return_value,sizeof(return_value));
+                write(th_data->deskryptor,logged_users,sizeof(logged_users));
             }else{
                 //action not recognized
             }
@@ -506,6 +483,10 @@ int main(int argc, char* argv[])
    int listen_result;
    char reuse_addr_val = 1;
    struct sockaddr_in server_address;
+
+   for(int i=0;i<MAX_USERS;i++){
+       memset(users[i].user,0,sizeof(char)*MAX_LENGHT_NAME);
+   }
 
    if(argc!=3){
        printf("Please set 2 arguments: 1 - adress IP, 2 - server port\n");
