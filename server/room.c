@@ -30,7 +30,7 @@ void add_message_to_room(Room room, Message message){//delete old messages(older
     }
 }
 
-char *getMessages(Room room) {
+char *get_messages_from_room(Room room) {
     char *messages_to_send;
     for(int i=0;i<room.number_of_messages;i++){
         messages_to_send = strcat(messages_to_send,room.messages[i].user.user);
