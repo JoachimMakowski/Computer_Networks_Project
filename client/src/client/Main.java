@@ -62,5 +62,4 @@ public class Main extends Application {
         if (answer)
             primaryStage.close();
     }
-
 }

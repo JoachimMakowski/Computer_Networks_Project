@@ -5,7 +5,10 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -14,8 +17,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 public class RoomController {
-
-    public ListView<String> primaryRoomList;
 
     @FXML
     private TextField newRoomName;
@@ -38,25 +39,59 @@ public class RoomController {
     private Label noRoomNameError;
     @FXML
     private Label emptyRoomNameError;
+    @FXML
+    private Label noSpaceError;
+
+    public ListView<String> primaryRoomList;
+
+    private String nickname;
+    private Socket clientSocket;
+    private PrintWriter writer;
+    private BufferedReader reader;
 
     @FXML
     void initialize() {
 
     }
 
+    void initialData(String nick, Socket socket,PrintWriter printWriter, BufferedReader bufferedReader) {
+        this.nickname = nick;
+        this.clientSocket = socket;
+        this.writer = printWriter;
+        this.reader = bufferedReader;
+    }
+
     @FXML
-    public void checkNewRoom(){
+    public void checkNewRoom() throws IOException {
         newRoomNameError.setVisible(false);
         newRoomTakenError.setVisible(false);
         newRoomLongerError.setVisible(false);
+        noSpaceError.setVisible(false);
+
         if (newRoomName.getText() == null || newRoomName.getText().trim().isEmpty()) {
             newRoomNameError.setVisible(true);
         }
         if (newRoomName.getText().trim().length() <= 20 && newRoomName.getText().trim().length() > 0) {
-            System.out.println("Created new room #" + newRoomName.getText());
-            initialize("#"+newRoomName.getText());
-            Stage thisStage = (Stage) createRoomCreateButton.getScene().getWindow();
-            thisStage.close();
+
+            String roomName = "3\n" + newRoomName.getText();
+            System.out.println(roomName);
+            this.writer.println(roomName);
+
+            String serverRoomMessage = reader.readLine();
+            System.out.println(serverRoomMessage);
+            System.out.println(serverRoomMessage.equals("30"));
+
+            switch (serverRoomMessage) {
+                case "30" -> {
+                    System.out.println("Created new room #" + newRoomName.getText());
+                    initialize("#" + newRoomName.getText());
+                    Stage thisStage = (Stage) createRoomCreateButton.getScene().getWindow();
+                    thisStage.close();
+                }
+                case "31" -> newRoomTakenError.setVisible(true);
+                case "32" -> noSpaceError.setVisible(true);
+            }
+
         }
         if (newRoomName.getText().trim().length() > 20){
             newRoomLongerError.setVisible(true);
@@ -64,13 +99,21 @@ public class RoomController {
     }
 
     @FXML
-    public void checkRoomToJoin(){
+    public void checkRoomToJoin() throws IOException {
         noRoomNameError.setVisible(false);
         emptyRoomNameError.setVisible(false);
         if (roomNameText.getText() == null || roomNameText.getText().trim().isEmpty()) {
             emptyRoomNameError.setVisible(true);
         }
         else {
+            String joinRoom = "2\n" + roomNameText.getText() + "\n" + this.nickname;
+            System.out.println(joinRoom);
+            this.writer.println(joinRoom);
+
+            //String serverRoomMessage = reader.readLine();
+            //System.out.println(serverRoomMessage);
+            //System.out.println(serverRoomMessage.equals("21"));
+
             System.out.println("JOINING ROOM " + roomNameText.getText());
             Stage thisStage = (Stage) joinRoomCancelButton.getScene().getWindow();
             thisStage.close();

@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="300.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.RoomController">
+<AnchorPane minWidth="200.0" prefHeight="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.RoomController">
    <children>
       <TextField fx:id="newRoomName" layoutX="57.0" layoutY="119.0" prefHeight="40.0" prefWidth="185.0" promptText="Room name" />
       <Button fx:id="createRoomCreateButton" layoutX="33.0" layoutY="238.0" mnemonicParsing="false" onAction="#checkNewRoom" prefHeight="40.0" prefWidth="75.0" text="Create" />
