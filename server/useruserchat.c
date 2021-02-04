@@ -28,3 +28,15 @@ void add_message_to_chat(Useruserchat useruserchat, Message message){//delete ol
         useruserchat.number_of_messages++;
     }
 }
+
+char *get_messages_from_useruserchat(Useruserchat useruserchat) {
+    char *messages_to_send;
+    for(int i=0;i<useruserchat.number_of_messages;i++){
+        messages_to_send = strcat(messages_to_send,useruserchat.messages[i].user.user);
+        messages_to_send = strcat(messages_to_send,": ");
+        messages_to_send = strcat(messages_to_send,useruserchat.messages[i].content);
+        messages_to_send = strcat(messages_to_send,"|");//| is our delimeter
+    }
+    messages_to_send = strcat(messages_to_send,"\n");
+    return messages_to_send;
+}

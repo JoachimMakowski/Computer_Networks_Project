@@ -12,6 +12,7 @@
 #include <time.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "room.c"
 #include "user.c"
 #include "useruserchat.c"
@@ -47,6 +48,20 @@ Room rooms[MAX_ROOMS];
 User users[MAX_USERS];
 Useruserchat useruserchats[MAX_USERS*(MAX_USERS-1)];
 
+char *ltrim(char *s)
+{
+    while(isspace(*s)) s++;
+    return s;
+}
+
+char *rtrim(char *s)
+{
+    char* back = s + strlen(s);
+    while(isspace(*--back));
+    *(back+1) = '\0';
+    return s;
+}
+
 
 //funkcja opisującą zachowanie wątku - musi przyjmować argument typu (void *) i zwracać (void *) check
 void *ThreadBehavior(void *t_data)
@@ -56,8 +71,8 @@ void *ThreadBehavior(void *t_data)
     struct thread_data_t *th_data = (struct thread_data_t*)t_data;
     
     while(1){
-        char buffor[300];
-        char return_value[1500];//it cant be a pointer
+        char buffor[300] = "";
+        char return_value[1500] = "";//it cant be a pointer
         int vread = read(th_data -> deskryptor, buffor,300);
         if (vread > 0){//trzeba zaimplementować if-else i odpowiednie rodzaje wiadomości odpowiednio obsługiwać
         /* 0 - log
@@ -80,6 +95,8 @@ void *ThreadBehavior(void *t_data)
         6 - change room
         7 - actual logged users
             70\n%s\n - actually logged users %s = list of users separated by "|"
+        80 - messages room
+        81 - messages face2face
         potrzebuję jeszcze leave room
         */
             const char s[2] = "\n";
@@ -99,13 +116,16 @@ void *ThreadBehavior(void *t_data)
                 token = strtok(NULL, s);
             }*/
             buffor[vread] = '\0';
-
+            ltrim(buffor);
+            //printf("%c",buffor[0]);
+            //printf("%s",buffor);
+            //printf("%d\n",vread);
             token = strtok(buffor, s);//get token
-            //printf("%s\n%s\n",buffor,token);
+
             if(*token == '0'){  //0 - log
                 bool find_user = false;
                 token = strtok(NULL, s); //username
-                printf("%s\n",token);
+                //printf("%s\n",token);
                 pthread_mutex_lock(&add_user_mutex);
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token)){
@@ -118,21 +138,6 @@ void *ThreadBehavior(void *t_data)
                             //add info about rooms and users online
                             strcpy(return_value,"00\n");
                             printf("IM SENDING!!!\n");
-                            for(int j=0;j<number_of_users;j++){
-                                if(users[j].logged){
-                                    strcat(return_value,users[j].user);
-                                    strcat(return_value,"|");//| is a delimeter
-                                }
-                            }
-                            strcat(return_value,"\n");
-                            //add info about rooms avalaible
-                            for(int j = 0;j<number_of_rooms;j++){
-                                if(is_user_in_group(rooms[j],users[i])){
-                                    strcat(return_value,rooms[i].name);
-                                    strcat(return_value,"|");//| is a delimeter
-                                }
-                            }
-                            strcat(return_value,"\n");
                             write(th_data->deskryptor,return_value,sizeof(return_value));
                             break;
                         }
@@ -161,18 +166,10 @@ void *ThreadBehavior(void *t_data)
                             useruserchats[number_of_chats].is_active_user2 = false;
                             number_of_chats++;
                         }
-                        printf("%s\n",token);
+                        //printf("%s\n",token);
                         //add info about users online and room
                         strcpy(return_value,"00\n");
                         printf("IM SENDING!!!\n");
-                        for(int j=0;j<number_of_users;j++){//
-                            if(users[j].logged){
-                                strcat(return_value,users[j].user);
-                                strcat(return_value,"|");//| is a delimeter
-                            }
-                        }
-                        strcat(return_value,"\n");
-                        strcat(return_value,"\n");//because we dont send info about rooms
                         write(users[i].descriptor,return_value,sizeof(return_value));
                         number_of_users++;
                         break;
@@ -189,12 +186,16 @@ void *ThreadBehavior(void *t_data)
             else if(*token == '1'){//1 - logout
                 token = strtok(NULL, s); //username
                 bool find_user = false;
-                for(int i=0;i<MAX_USERS;i++){
+                printf("%d: %s\n",number_of_users,token);
+                for(int i=0;i<50;i++){
+                    printf("IM IN");
                     if(!strcmp(users[i].user,token)){
                         find_user = true;
                         if(users[i].logged == true){
                             pthread_mutex_lock(&users_logged_mutex);
                             users[i].logged = false;
+                            users[i].descriptor = -1;
+                            printf("IM IN");
                             pthread_mutex_unlock(&users_logged_mutex);
                             break;
                         }
@@ -209,6 +210,7 @@ void *ThreadBehavior(void *t_data)
                     //there is no such user
                     printf("There is no such user\n");
                 }
+                printf("IM OUT");
                 close(th_data->deskryptor);
             }
             else if(*token == '2'){//2 - join room
@@ -228,9 +230,9 @@ void *ThreadBehavior(void *t_data)
                                 //add new user to room
                                 pthread_mutex_lock(&add_user_to_room_mutex);
                                 add_user_to_room(rooms[i],users[j]);
-                                pthread_mutex_lock(&add_user_to_room_mutex);
+                                pthread_mutex_unlock(&add_user_to_room_mutex);
                                 //send all messages to user
-                                messages_to_send = getMessages(rooms[i]);
+                                messages_to_send = get_messages_from_room(rooms[i]);
                                 printf("%s",messages_to_send);
                                 write(th_data->deskryptor,messages_to_send,sizeof(messages_to_send));
                                 break;
@@ -277,7 +279,7 @@ void *ThreadBehavior(void *t_data)
                                 add_user_to_room(rooms[i],users[j]);
                             }
                         }
-                        pthread_mutex_lock(&add_user_to_room_mutex);
+                        pthread_mutex_unlock(&add_user_to_room_mutex);
                         find_free_room = true;
                         number_of_rooms++;
                         strcpy(return_value,"30\n");
@@ -333,17 +335,17 @@ void *ThreadBehavior(void *t_data)
             }
             else if(*token == '5'){//5 - message face2face
                 token = strtok(NULL, s); //message content
-                token2 = strtok(NULL, s); //username from
-                token3 = strtok(NULL, s); //username to
+                token2 = strtok(NULL, s); //username to
+                token3 = strtok(NULL, s); //username from
                 bool find_user_from = false;
                 bool find_user_to = false;
                 bool find_user_user_chat = false;
                 for(int i=0;i<MAX_USERS;i++){
                     if(!strcmp(users[i].user,token2)){
-                        find_user_from = true;
+                        find_user_to = true;
                         for(int j = 0;j<MAX_USERS;j++){
                             if(!strcmp(users[j].user,token3)){
-                                find_user_to = true;
+                                find_user_from = true;
                                 //send new message between users
                                 for(int k=0;k<MAX_USERS*(MAX_USERS-1);k++){
                                     if(((!strcmp(users[i].user,useruserchats[k].user1.user)) && (!strcmp(users[j].user,useruserchats[k].user2.user)))||
@@ -358,7 +360,7 @@ void *ThreadBehavior(void *t_data)
                                         if(users[j].logged){
                                             pthread_mutex_lock(&sending_message_to_chat_mutex);
                                             //send message
-                                            pthread_mutex_lock(&sending_message_to_chat_mutex);
+                                            pthread_mutex_unlock(&sending_message_to_chat_mutex);
                                         }
                                         else{
                                             //just store it
@@ -440,20 +442,46 @@ void *ThreadBehavior(void *t_data)
                     //room is ok, no such username
                 }
                 //if the room is not found then the user is not recognized
-            }else if(*token=='7'){ //actually logged users
+            }else if(*token=='7'){ //users in server
                 char *logged_users = malloc(sizeof(char)*20*20);
                 strcpy(logged_users,"70\n");
                 for(int i=0;i<number_of_users;i++){
-                    if(users[i].logged){
+                    if(users[i].descriptor!=th_data->deskryptor){
                         logged_users = strcat(logged_users,users[i].user);
                         logged_users = strcat(logged_users,"|");
                     }
                 }
                 logged_users = strcat(logged_users,"\n");
                 printf("IM SENDING LOGGED USERS!!!\n");
-                write(th_data->deskryptor,return_value,sizeof(return_value));
+                write(th_data->deskryptor,logged_users,sizeof(logged_users));
+            }else if(!strcmp(token,"80")){//getting messages of room
+                token = strtok(NULL, s); //username
+                token2 = strtok(NULL, s); //which group
+                bool find_room = false;
+                for(int i=0;i<number_of_rooms;i++){
+                    if(!strcmp(token2,rooms[i].name)){
+                        find_room=true;
+                        strcpy(return_value,get_messages_from_room(rooms[i]));
+                        printf("IM SENDING MESSAGES OF ROOM: %s\n",rooms[i].name);
+                        write(th_data->deskryptor,return_value,sizeof(return_value));
+                        break;
+                    }
+                }
+            }else if(!strcmp(token,"81")){//getting messages of face2face
+                token = strtok(NULL, s); //username_from
+                token2 = strtok(NULL, s); //username_to
+                for(int i=0;i<number_of_users*(number_of_users-1)/2;i++){
+                    if((!strcmp(useruserchats[i].user1.user,token)&&!strcmp(useruserchats[i].user2.user,token2))||
+                    (!strcmp(useruserchats[i].user2.user,token)&&(!strcmp(useruserchats[i].user1.user,token2)))){
+                        strcpy(return_value,get_messages_from_useruserchat(useruserchats[i]));
+                        printf("IM SENDING MESSAGES OF CHAT\n");
+                        write(th_data->deskryptor,return_value,sizeof(return_value));
+                        break;
+                    }
+                }
             }else{
                 //action not recognized
+                printf("Action not recognized: %s\n",token);
             }
             //printf("%s",buffor);
         }
@@ -507,6 +535,10 @@ int main(int argc, char* argv[])
    char reuse_addr_val = 1;
    struct sockaddr_in server_address;
 
+   for(int i=0;i<MAX_USERS;i++){
+       memset(users[i].user,0,sizeof(char)*MAX_LENGHT_NAME);
+   }
+
    if(argc!=3){
        printf("Please set 2 arguments: 1 - adress IP, 2 - server port\n");
        return(0);
@@ -519,7 +551,7 @@ int main(int argc, char* argv[])
    //inicjalizacja gniazda serwera
    memset(&server_address, 0, sizeof(struct sockaddr));
    server_address.sin_family = AF_INET;
-   server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+   inet_pton(AF_INET,argv[1],&(server_address.sin_addr));
    server_address.sin_port = htons(atoi(argv[2]));
 
    server_socket_descriptor = socket(AF_INET, SOCK_STREAM, 0);
