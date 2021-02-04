@@ -9,6 +9,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -29,9 +30,9 @@ public class MenuController {
     @FXML
     private TextArea typeMessage;
     @FXML
-    private ListView<String> roomList;
+    private ListView<String> roomList = new ListView<String>();
     @FXML
-    private ListView<String> userList;
+    private ListView<String> userList = new ListView<String>();
     @FXML
     private Button logoutButton;
 
@@ -42,26 +43,27 @@ public class MenuController {
 
     @FXML
     void initialize() {
-        userList.getItems().add("Item 1");
-        userList.getItems().add("Item 2");
     }
 
     void initData(String nick, Socket socket, PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
         this.nickname = nick;
-
-        //only added for tests
         this.clientSocket = socket;
         this.writer = printWriter;
         this.reader = bufferedReader;
         userList.getItems().add(nick);
 
         //request to server to get list of clients saved on the server
+        /*
         String request = "7\n";
         writer.println(request);
-        System.out.println("REQUEST FOR CLIENTS LIST");
+        System.out.println("REQUEST FOR CLIENTS AND ROOMS LIST");
 
-        //String listOfUsers = reader.readLine();
-        //System.out.println(listOfUsers);
+        String listOfUsers = reader.readLine();
+        System.out.println(listOfUsers);
+        String listOfRooms = reader.readLine();
+        System.out.println(listOfRooms);
+         */
+
     }
 
     public void logout() throws IOException {
@@ -91,8 +93,8 @@ public class MenuController {
             String msg = "1\n" + this.nickname;
             System.out.println(msg);
             writer.println(msg);
-            logout();
             clientSocket.close();
+            logout();
         }
     }
 
@@ -105,19 +107,34 @@ public class MenuController {
             String selectedUser = userList.getSelectionModel().getSelectedItem();
             System.out.println("SELECTED USER: " + selectedUser);
 
-            if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200 && selectedUser!=null) {
-                String msg = "4\n" + typeMessage.getText() + "\n" + selectedUser + "\n" + this.nickname + "\n";
-                System.out.println(msg);
-                writer.println(msg);
-                System.out.println("SENDING MESSAGE");
+            String selectedRoom = roomList.getSelectionModel().getSelectedItem();
+            System.out.println("SELECTED ROOM: " + selectedRoom);
 
-                //String timeStamp = new SimpleDateFormat("HH:mm:ss").format(Calendar.getInstance().getTime());
+            if (typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200 && selectedUser!=null) {
+                String message2face = "5\n" + typeMessage.getText() + "\n" + selectedUser + "\n" + this.nickname + "\n";
+                //System.out.println(message2face);
+                writer.println(message2face);
+                System.out.println("SENDING MESSAGE2FACE");
 
                 Text text = new Text(this.nickname + "  " + typeMessage.getText());
                 text.setStyle("-fx-font-size: 14px;");
                 //text.setFill(Color.RED);
                 text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
                 chat.getChildren().add(text);
+            }
+            else if(typeMessage.getText().length() > 1 && typeMessage.getText().length() < 200 && selectedRoom!=null){
+                String messages2room = "4\n" + typeMessage.getText() + "\n" + selectedRoom + "\n" + this.nickname + "\n";
+                //System.out.println(messages2room);
+                writer.println(messages2room);
+                System.out.println("SENDING MESSAGE2ROOM");
+
+                Text text = new Text(this.nickname + "  " + typeMessage.getText());
+                text.setStyle("-fx-font-size: 14px;");
+                text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
+                chat.getChildren().add(text);
+            }
+            else if (selectedUser == null || selectedRoom == null) {
+                System.out.println("SELECT USER OR ROOM TO SEND A MESSAGE!");
             }
             else{
                 System.out.println("WRONG SIZE OF A MESSAGE!");
@@ -138,10 +155,8 @@ public class MenuController {
         createRoomStage.setScene(new Scene(fxmlLoader.load()));
 
         RoomController roomController = fxmlLoader.getController();
-        System.out.println(this.nickname);
-        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+        roomController.initialData(nickname, clientSocket, writer, reader);
         roomController.primaryRoomList = roomList; //to control listview from RoomController
-
         createRoomStage.show();
     }
 
@@ -152,7 +167,7 @@ public class MenuController {
         joinRoomLoader.setLocation(getClass().getResource("joinRoom.fxml"));
         AnchorPane frameJoin = joinRoomLoader.load();
         RoomController roomController = joinRoomLoader.getController();
-        roomController.initialData(this.nickname, this.clientSocket, this.writer, this.reader);
+        roomController.initialData(nickname, clientSocket, writer, reader);
 
         Stage joinRoomStage = new Stage();
         joinRoomStage.initModality(Modality.APPLICATION_MODAL);
@@ -160,6 +175,27 @@ public class MenuController {
         joinRoomStage.setResizable(false);
         joinRoomStage.setScene(new Scene(frameJoin));
         joinRoomStage.show();
+    }
+
+    @FXML
+    public void handleClickedUser() throws IOException {
+        String userName = userList.getSelectionModel().getSelectedItem();
+        System.out.println("user clicked on " + userName);
+
+        String messageUserName = "81\n" + this.nickname +  "\n" + userName;
+        System.out.println(messageUserName);
+        writer.println(messageUserName);
+    }
+
+    @FXML
+    public void handleClickedRoom() throws IOException {
+        String roomName = roomList.getSelectionModel().getSelectedItem();
+        System.out.println("room clicked on " + roomName);
+
+        String messageRoomName = "80\n" + this.nickname + "\n" + roomName;
+        System.out.println(messageRoomName);
+        writer.println(messageRoomName);
+
     }
 
 }

@@ -30,13 +30,21 @@ void add_message_to_room(Room room, Message message){//delete old messages(older
     }
 }
 
-/*Message *getMessages() {
-    return messages;
-}*/
+char *getMessages(Room room) {
+    char *messages_to_send;
+    for(int i=0;i<room.number_of_messages;i++){
+        messages_to_send = strcat(messages_to_send,room.messages[i].user.user);
+        messages_to_send = strcat(messages_to_send,": ");
+        messages_to_send = strcat(messages_to_send,room.messages[i].content);
+        messages_to_send = strcat(messages_to_send,"|");//| is our delimeter
+    }
+    messages_to_send = strcat(messages_to_send,"\n");
+    return messages_to_send;
+}
 
 //add_user
 
-void add_user(Room room, User user){
+void add_user_to_room(Room room, User user){
     bool find_place = false;
     for(int i=0;i<MAX_USERS_IN_ROOM;i++){
         if(!strcmp(user.user,room.users[i].user)){
@@ -52,6 +60,13 @@ void add_user(Room room, User user){
     if(!find_place){
         //send message there is no place in room
     }
+}
+
+bool is_user_in_group(Room room, User user){
+    for(int i=0;i<room.number_of_users;i++){
+        if(!strcmp(user.user,room.users[i].user)) return true;
+    }
+    return false;
 }
 
 //get_users

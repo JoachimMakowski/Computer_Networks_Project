@@ -96,14 +96,12 @@ public class Controller {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("menu.fxml"));
 
         Stage menuStage = new Stage();
-        menuStage.setScene(new Scene(loader.load()));
         menuStage.setTitle("Internet Relay Chat");
         menuStage.setResizable(false);
+        menuStage.setScene(new Scene(loader.load()));
 
         MenuController controller = loader.getController();
-        //only added for tests
-        controller.initData(nick.getText(), this.clientSocket, this.writer, this.reader);
-
+        controller.initData(nick.getText(), clientSocket, writer, reader);
         menuStage.show();
 
         menuStage.setOnCloseRequest(e ->

@@ -6,10 +6,10 @@
 
 <AnchorPane minWidth="200.0" prefHeight="300.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.RoomController">
    <children>
-      <TextField fx:id="newRoomName" layoutX="57.0" layoutY="119.0" prefHeight="40.0" prefWidth="185.0" promptText="Room name" />
-      <Button fx:id="createRoomCreateButton" layoutX="33.0" layoutY="238.0" mnemonicParsing="false" onAction="#checkNewRoom" prefHeight="40.0" prefWidth="75.0" text="Create" />
-      <Button fx:id="createRoomCancelButton" layoutX="188.0" layoutY="238.0" mnemonicParsing="false" onAction="#closeButtonAction" prefHeight="40.0" prefWidth="75.0" text="Cancel" />
-      <Label layoutX="15.0" layoutY="49.0" prefHeight="30.0" prefWidth="270.0" text="Create a room to chat in groups">
+      <TextField fx:id="newRoomName" layoutX="86.0" layoutY="119.0" prefHeight="40.0" prefWidth="185.0" promptText="Room name" />
+      <Button fx:id="createRoomCreateButton" layoutX="42.0" layoutY="218.0" mnemonicParsing="false" onAction="#checkNewRoom" prefHeight="40.0" prefWidth="75.0" text="Create" />
+      <Button fx:id="createRoomCancelButton" layoutX="234.0" layoutY="218.0" mnemonicParsing="false" onAction="#closeButtonAction" prefHeight="40.0" prefWidth="75.0" text="Cancel" />
+      <Label layoutX="43.0" layoutY="52.0" prefHeight="30.0" prefWidth="270.0" text="Create a room to chat in groups">
          <font>
             <Font size="16.0" />
          </font>
