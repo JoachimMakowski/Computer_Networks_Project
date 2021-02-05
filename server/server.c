@@ -392,7 +392,6 @@ void *ThreadBehavior(void *t_data)
                 token5 = strtok(NULL, s); //conversation name(if chat send username2)_to
                 
                 bool find_room_from = false;
-                bool find_room_to = false;
                 bool find_user = false;
                 for(int i = 0;i<MAX_USERS;i++)
                 {
@@ -405,7 +404,6 @@ void *ThreadBehavior(void *t_data)
                                     if(*token4=='0'){//to room
                                         for(int k=0;k<number_of_rooms;k++){
                                             if(!strcmp(rooms[k].name,token5)){
-                                                find_room_to = true;
                                                 
                                                 for(int l = 0;l<MAX_USERS_IN_ROOM;l++){
                                                     if(!strcmp(token,rooms[j].users[l].user)){
@@ -444,7 +442,7 @@ void *ThreadBehavior(void *t_data)
                 //if the room is not found then the user is not recognized
             }else if(*token=='7'){ //users in server
                 char *logged_users = malloc(sizeof(char)*20*20);
-                strcpy(logged_users,"70\n");
+                //strcpy(logged_users,"70\n");
                 for(int i=0;i<number_of_users;i++){
                     if(users[i].descriptor!=th_data->deskryptor){
                         logged_users = strcat(logged_users,users[i].user);
@@ -457,10 +455,8 @@ void *ThreadBehavior(void *t_data)
             }else if(!strcmp(token,"80")){//getting messages of room
                 token = strtok(NULL, s); //username
                 token2 = strtok(NULL, s); //which group
-                bool find_room = false;
                 for(int i=0;i<number_of_rooms;i++){
                     if(!strcmp(token2,rooms[i].name)){
-                        find_room=true;
                         strcpy(return_value,get_messages_from_room(rooms[i]));
                         printf("IM SENDING MESSAGES OF ROOM: %s\n",rooms[i].name);
                         write(th_data->deskryptor,return_value,sizeof(return_value));

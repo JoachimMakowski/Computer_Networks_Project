@@ -129,6 +129,7 @@ public class RoomController {
 
             if ("20".equals(serverRoomMessage)){
                 System.out.println("JOINING ROOM " + roomNameText.getText());
+                primaryRoomList.getItems().add("#" + roomNameText.getText());
                 Stage thisStage = (Stage) joinRoomCancelButton.getScene().getWindow();
                 thisStage.close();
             }
@@ -139,7 +140,7 @@ public class RoomController {
     }
 
     /**
-     * Method to handle disabling the application 
+     * Method to handle disabling the application
      * @param event
      */
 
