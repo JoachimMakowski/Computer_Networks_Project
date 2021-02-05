@@ -14,6 +14,10 @@ import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Class to control login and server connection screen
+ */
+
 public class Controller {
 
     @FXML
@@ -43,6 +47,10 @@ public class Controller {
     void initialize() {
     }
 
+    /**
+     * Method to check if login and connection details are correct, then starts the login function
+     * @throws IOException
+     */
     @FXML
     public void check() throws IOException {
         loginErrorEmpty.setVisible(false);
@@ -61,6 +69,7 @@ public class Controller {
                 this.writer = new PrintWriter(clientSocket.getOutputStream(), true);
                 this.reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
+                //send info to server about login attempt
                 String msg = "0\n" + nick.getText();
                 writer.println(msg);
 
@@ -73,6 +82,7 @@ public class Controller {
                 return;
             }
 
+            //reads reply from the server
             String serverMessage = reader.readLine();
             System.out.println(serverMessage);
 
@@ -91,6 +101,11 @@ public class Controller {
             loginErrorLong.setVisible(true);
         }
     }
+
+    /**
+     * Method to display main menu of the app
+     * @throws IOException
+     */
 
     public void login() throws IOException {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("menu.fxml"));
@@ -117,6 +132,11 @@ public class Controller {
         Stage thisStage = (Stage) button.getScene().getWindow();
         thisStage.close();
     }
+
+    /**
+     * Interception of pressing Enter key at login
+     * @throws IOException
+     */
 
     @FXML
     public void enter(KeyEvent e) throws IOException {

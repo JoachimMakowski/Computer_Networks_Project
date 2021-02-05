@@ -14,9 +14,9 @@
             <Font size="16.0" />
          </font>
       </Label>
-      <Label fx:id="newRoomNameError" layoutX="74.0" layoutY="190.0" prefHeight="18.0" prefWidth="152.0" text="Room name can't be empty!" textFill="RED" visible="false" />
-      <Label fx:id="newRoomTakenError" layoutX="79.0" layoutY="190.0" prefHeight="18.0" prefWidth="142.0" text="Room name already taken!" textFill="#fd0000" visible="false" />
-      <Label fx:id="newRoomLongerError" layoutX="18.0" layoutY="190.0" prefHeight="18.0" prefWidth="264.0" text="Room name cannot be longer than 20 characters!" textFill="RED" visible="false" />
-      <Label fx:id="noSpaceError" layoutX="9.0" layoutY="181.0" text="Not enough space on the server to create new room!" textFill="RED" visible="false" />
+      <Label fx:id="newRoomNameError" layoutX="84.0" layoutY="180.0" prefHeight="18.0" prefWidth="198.0" text="Room name can't be empty!" textFill="RED" visible="false" />
+      <Label fx:id="newRoomTakenError" layoutX="90.0" layoutY="181.0" prefHeight="18.0" prefWidth="185.0" text="Room name already taken!" textFill="#fd0000" visible="false" />
+      <Label fx:id="newRoomLongerError" layoutX="18.0" layoutY="190.0" prefHeight="18.0" prefWidth="333.0" text="Room name cannot be longer than 20 characters!" textFill="RED" visible="false" />
+      <Label fx:id="noSpaceError" layoutX="6.0" layoutY="182.0" text="Not enough space on the server to create new room!" textFill="RED" visible="false" />
    </children>
 </AnchorPane>

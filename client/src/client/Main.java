@@ -8,7 +8,12 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-/*      0 - login
+/**
+ *     Main running class
+ */
+
+/*
+        0 - login
             00 - user logged successfully
             01 - user already logged
             02 - limit of active user on the server
@@ -59,6 +64,9 @@ public class Main extends Application {
         launch(args);
     }
 
+    /**
+     *  Method to display confirm box before closing the app
+     */
     public static void closeProgram(Stage primaryStage) {
         Boolean answer = ConfirmBox.display("EXIT", "Sure you want to exit?", "YES", "NO");
         if (answer)

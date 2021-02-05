@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+/**
+ * Class to control actions in the main screen of the application (sending messages, changing rooms etc.)
+ */
+
 public class MenuController {
 
     @FXML
@@ -44,6 +48,15 @@ public class MenuController {
     void initialize() {
     }
 
+    /**
+     * Method to initialize data in the main screen and pass the connection data from Controller.java
+     * @param nick nickname of the user
+     * @param socket
+     * @param printWriter
+     * @param bufferedReader
+     * @throws IOException
+     */
+
     void initData(String nick, Socket socket, PrintWriter printWriter, BufferedReader bufferedReader) throws IOException {
         this.nickname = nick;
         this.clientSocket = socket;
@@ -52,17 +65,19 @@ public class MenuController {
         userList.getItems().add(nick);
 
         //request to server to get list of clients saved on the server
-
         String request = "7\n";
         writer.println(request);
         System.out.println("REQUEST FOR CLIENTS AND ROOMS LIST");
 
-        /*
+        //server response with a list of users
         String listOfUsers = reader.readLine().trim();
         for (String retUsers:listOfUsers.split("|")){
             System.out.println(retUsers);
             userList.getItems().add(retUsers);
         }
+
+        /*
+        //server response with a list of rooms
 
         String listOfRooms = reader.readLine().trim();
         System.out.println(listOfRooms);
@@ -74,6 +89,11 @@ public class MenuController {
          */
 
     }
+
+    /**
+     * Method to logout and take again to the login screen
+     * @throws IOException
+     */
 
     public void logout() throws IOException {
         FXMLLoader loader = new FXMLLoader(Main.class.getResource("login.fxml"));
@@ -95,6 +115,10 @@ public class MenuController {
         thisStage.close();
     }
 
+    /**
+     * Method to control logout operation, sends information to the server and closes the network socket
+     * @throws IOException
+     */
     @FXML
     public void logoutControl() throws IOException {
         Boolean answer = ConfirmBox.display("LOGOUT", "Are you sure to logout?", "OK", "Cancel");
@@ -106,6 +130,11 @@ public class MenuController {
             logout();
         }
     }
+
+    /**
+     * Method to manage sending of messages to the server or client
+     * @throws IOException
+     */
 
     @FXML
     public void send(KeyEvent e) throws IOException {
@@ -152,6 +181,11 @@ public class MenuController {
         }
     }
 
+    /**
+     * Method to display new window with the form to create a new room
+     * @throws IOException
+     */
+
     @FXML
     public void createRoom() throws IOException{
 
@@ -168,6 +202,11 @@ public class MenuController {
         roomController.primaryRoomList = roomList; //to control listview from RoomController
         createRoomStage.show();
     }
+
+    /**
+     * Method to display new window with the form to join a new room
+     * @throws IOException
+     */
 
     @FXML
     public void joinRoom() throws IOException{
@@ -186,6 +225,11 @@ public class MenuController {
         joinRoomStage.show();
     }
 
+    /**
+     * Method to refresh messages when changing private conversations
+     * @throws IOException
+     */
+
     @FXML
     public void handleClickedUser() throws IOException {
         String userName = userList.getSelectionModel().getSelectedItem();
@@ -195,6 +239,9 @@ public class MenuController {
         System.out.println(messageUserName);
         writer.println(messageUserName);
 
+        chat.getChildren().clear();
+
+        /*
         String listOfMessagesUser = reader.readLine().trim();
         for (String retMessages:listOfMessagesUser.split("|")){
             System.out.println(retMessages);
@@ -204,8 +251,14 @@ public class MenuController {
             text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
             chat.getChildren().add(text);
         }
+         */
 
     }
+
+    /**
+     * Method to refresh messages when changing rooms
+     * @throws IOException
+     */
 
     @FXML
     public void handleClickedRoom() throws IOException {
@@ -216,6 +269,9 @@ public class MenuController {
         System.out.println(messageRoomName);
         writer.println(messageRoomName);
 
+        chat.getChildren().clear();
+
+        /*
         String listOfMessagesRoom = reader.readLine().trim();
         for (String retMessages2:listOfMessagesRoom.split("|")){
             System.out.println(retMessages2);
@@ -225,6 +281,8 @@ public class MenuController {
             text.setFill(Color.color(Math.random(), Math.random(), Math.random()));
             chat.getChildren().add(text);
         }
+
+         */
     }
 
 }

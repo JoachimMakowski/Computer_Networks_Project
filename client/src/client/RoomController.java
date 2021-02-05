@@ -31,8 +31,6 @@ public class RoomController {
     private Label newRoomLongerError;
     @FXML
     private Button createRoomCreateButton;
-    @FXML
-    private Button createRoomCancelButton;
 
     @FXML
     private TextField roomNameText;
@@ -57,12 +55,21 @@ public class RoomController {
 
     }
 
+    /**
+     * Method to initialize data in the create/join room screen and pass the connection data
+    */
+
     void initialData(String nick, Socket socket,PrintWriter printWriter, BufferedReader bufferedReader) {
         this.nickname = nick;
         this.clientSocket = socket;
         this.writer = printWriter;
         this.reader = bufferedReader;
     }
+
+    /**
+     * Method for data validation when creating new room
+     * @throws IOException
+     */
 
     @FXML
     public void checkNewRoom() throws IOException {
@@ -81,10 +88,11 @@ public class RoomController {
             writer.println(roomName);
 
             String serverRoomMessage = reader.readLine().trim();
+            System.out.println(serverRoomMessage);
 
             if ("30".equals(serverRoomMessage)) {
                 System.out.println("Created new room #" + newRoomName.getText());
-                initialize("#" + newRoomName.getText());
+                primaryRoomList.getItems().add("#" + newRoomName.getText());
                 Stage thisStage = (Stage) createRoomCreateButton.getScene().getWindow();
                 thisStage.close();
             } else if ("31".equals(serverRoomMessage)) {
@@ -98,6 +106,11 @@ public class RoomController {
             newRoomLongerError.setVisible(true);
         }
     }
+
+    /**
+     * Method for data validation when joining new room, checks if the room with the given name is already on the server
+     * @throws IOException
+     */
 
     @FXML
     public void checkRoomToJoin() throws IOException {
@@ -113,24 +126,28 @@ public class RoomController {
 
             String serverRoomMessage = reader.readLine().trim();
             System.out.println(serverRoomMessage);
-            System.out.println(serverRoomMessage.equals("21"));
 
-            System.out.println("JOINING ROOM " + roomNameText.getText());
-            Stage thisStage = (Stage) joinRoomCancelButton.getScene().getWindow();
-            thisStage.close();
+            if ("20".equals(serverRoomMessage)){
+                System.out.println("JOINING ROOM " + roomNameText.getText());
+                Stage thisStage = (Stage) joinRoomCancelButton.getScene().getWindow();
+                thisStage.close();
+            }
+            else if ("21".equals(serverRoomMessage)){
+                noRoomNameError.setVisible(true);
+            }
         }
     }
+
+    /**
+     * Method to handle disabling the application 
+     * @param event
+     */
 
     @FXML
     private void closeButtonAction(ActionEvent event){
         Button button = (Button) event.getSource();
         Stage stage = (Stage) button.getScene().getWindow();
         stage.close();
-    }
-
-    public void initialize(String roomName){
-        ObservableList<String> rooms= FXCollections.observableArrayList(roomName);
-        primaryRoomList.setItems(rooms);
     }
 
 }
